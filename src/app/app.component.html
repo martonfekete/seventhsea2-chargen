@@ -1,3 +1,16 @@
 <h1>
-  {{title}}
+	{{title}}
 </h1>
+<p>
+	{{subtitle}}
+</p>
+<div *ngFor="let trait of traits let i = index" class="margin-bottom">
+	{{trait.label}} | <button (click)="decreaseTrait(i)">-</button> {{trait.value}} <button (click)="increaseTrait(i)">+</button>
+</div>
+
+<md-select placeholder="Select people" [(ngModel)]="selectedPeople" name="people">
+    <md-option *ngFor="let people of peopleOptions" [value]="people">
+		{{people.name}}
+    </md-option>
+</md-select>
+Selected people: {{selectedPeople.name}}
