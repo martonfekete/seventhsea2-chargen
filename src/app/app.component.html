@@ -1,16 +1,271 @@
-<h1>
-	{{title}}
-</h1>
-<p>
-	{{subtitle}}
-</p>
-<div *ngFor="let trait of traits let i = index" class="margin-bottom">
-	{{trait.label}} | <button (click)="decreaseTrait(i)">-</button> {{trait.value}} <button (click)="increaseTrait(i)">+</button>
-</div>
+<md-grid-list cols="6" rowHeight="36px">
+	<md-grid-tile colspan="5" rowspan="3">
+		<h1>
+			{{title}}
+		</h1>
+	</md-grid-tile>
+	<md-grid-tile>
+		<md-slide-toggle color="primary" [ngModel]="freeForm" (ngModelChange)="resetSheet($event)">Ignore Restrictions</md-slide-toggle>
+	</md-grid-tile>
+	<md-grid-tile>
+		<button md-button (click)="resetSheet()"><md-icon>clear</md-icon>Reset Values</button>
+	</md-grid-tile>
+	<md-grid-tile>
+	<button md-button (click)="generateSheet()"><md-icon>description</md-icon>Generate Hero Sheet</button>
+	</md-grid-tile>
+</md-grid-list>
 
-<md-select placeholder="Select people" [(ngModel)]="selectedPeople" name="people">
-    <md-option *ngFor="let people of peopleOptions" [value]="people">
-		{{people.name}}
-    </md-option>
-</md-select>
-Selected people: {{selectedPeople.name}}
+<md-tab-group selectedIndex="{{tabIndex}}">
+<md-tab label="People and Traits">
+	<div class="char-box inline">
+		<h2>Character information</h2>
+		<md-input-container *ngFor="let info of charInfo; let i = index" class="no-margin">
+			<input [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" md-input />
+		</md-input-container>
+	</div>
+
+	<div class="char-box inline">
+		<div>
+			<h2>Nation</h2>
+			<form>
+				<md-select placeholder="Select Nationality" [ngModel]="selectedPeople" (ngModelChange)="onPeopleChange($event)" name="people">
+				    <md-option *ngFor="let people of peopleOptions" [value]="people">
+						{{people.name}}
+				    </md-option>
+				</md-select>
+			</form>
+		</div>
+		<div class="margin-top">
+		<h2>Traits</h2>
+			<p *ngIf="!freeForm"><strong>Trait points remaining: {{points.traits}}</strong>, national bonus points: {{points.national}}</p>
+			<md-grid-list cols="2" rowHeight="2.5em" *ngFor="let trait of traits; let traitIndex = index" class="" [ngClass]="{'bg-shade': traitIndex%2 === 1}">
+				<md-grid-tile>
+					<h3 style="text-align: left" [ngClass]="{'strong-text': trait.favored}">{{trait.name}}</h3>
+				</md-grid-tile>
+				<md-grid-tile>
+					<span *ngFor="let dot of dots; let i = index" class="">
+						<md-icon *ngIf="i < trait.value" class="pointer" (click)="setCharValue('traits', traitIndex, i+1)">lens</md-icon>
+						<md-icon *ngIf="i >= trait.value" class="pointer" (click)="setCharValue('traits', traitIndex, i+1)" [ngClass]="{'text-red': (i > 3 && trait.favored && !freeForm) || (i > 2 && !trait.favored && !freeForm)}">panorama_fish_eye</md-icon>
+					</span>
+				</md-grid-tile>
+			</md-grid-list>
+		</div>
+	</div>
+</md-tab>
+<md-tab label="Backgrounds and Skills">
+	<div class="char-box inline">
+
+	<h2>Backgrounds</h2>
+	<form>
+		<md-select placeholder="Select fist background" [ngModel]="selectedBackgrounds[0]" (ngModelChange)="onBackgroundChange($event, 0)" name="background_1">
+		    <md-option *ngFor="let bg of backgroundOptions" [value]="bg">
+				{{bg.name}}
+		    </md-option>
+		</md-select>
+		<md-select placeholder="Select second background" [ngModel]="selectedBackgrounds[1]" (ngModelChange)="onBackgroundChange($event, 1)" name="background_2">
+		    <md-option *ngFor="let bg of backgroundOptions" [value]="bg">
+				{{bg.name}}
+		    </md-option>
+		</md-select>
+	</form>
+	<md-list>
+		<div *ngFor="let bg of selectedBackgrounds">
+			<md-list-item *ngIf="bg.name !== 'None selected'">
+				{{bg.name}}
+			</md-list-item>
+			<md-list-item class="md-caption" *ngIf="bg.quirk !== '---'">
+				<p>{{bg.quirk}}</p>
+			</md-list-item>
+		</div>
+	</md-list>
+	</div>
+	<div class="char-box inline">
+
+	<h2>Skills</h2>
+
+	<p *ngIf="!freeForm"><strong>Skill points remaining: {{points.skills}}</strong></p>
+
+	<md-grid-list cols="2" rowHeight="2.5em" *ngFor="let skill of skills; let skillIndex = index; let odd = odd" class="" [ngClass]="{'bg-shade': odd}">
+		<md-grid-tile>
+		<h3>{{skill.name}}</h3>
+		</md-grid-tile>
+		<md-grid-tile>
+			<span *ngFor="let dot of dots; let i = index" class="">
+				<md-icon *ngIf="i < skill.base + skill.value" class="pointer" (click)="setCharValue('skills', skillIndex, i+1)">lens</md-icon>
+				<md-icon *ngIf="i >= skill.base + skill.value" class="pointer" (click)="setCharValue('skills', skillIndex, i+1)" [ngClass]="{'text-red': i > 2 && !freeForm}">panorama_fish_eye</md-icon>
+			</span>
+			<md-icon *ngIf="skill.base === 0 && skill.value > 0" class="pointer" (click)="setCharValue('skills', skillIndex, 0)">clear</md-icon>
+		</md-grid-tile>
+		<!--md-grid-tile>
+			<span class="skill-caption">{{skill.tip}}</span>
+		</md-grid-tile-->
+	</md-grid-list>
+	</div>
+</md-tab>
+<md-tab label="Advantages and Sorcery">
+	<div class="char-box inline-multi">
+	<h2>All Advantages</h2>
+
+	<p><strong>Advantage points remaining: {{points.advantages}}</strong></p>
+
+	<md-list>
+		<md-list-item *ngFor="let adv of advantageOptions let i = index">
+			<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}" *ngIf="adv.name !== 'Sorcery'">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
+			<p style="margin-left:28px" *ngIf="adv.name === 'Sorcery'">{{adv.name}} - Rank {{sorceryTimes}} ({{adv.cost}} points)
+			<button (click)="decreaseSorcery()" md-button>-</button>
+			<button (click)="increaseSorcery()" md-button disabled="{{adv.disabled}}">+</button></p>
+		</md-list-item>
+	</md-list>
+	</div>
+	<div class="char-box inline">
+
+	<h2>Selected Advantages</h2>
+
+	<md-list *ngIf="selectedAdvantages.length > 0">
+		<div *ngFor="let adv of selectedAdvantages let i = index" class="">
+			<md-list-item>
+				{{adv.name}}
+			</md-list-item>
+			<md-list-item class="md-caption">
+				<p>{{adv.description}}</p>
+			</md-list-item>
+		</div>
+	</md-list>
+	<md-card *ngIf="selectedAdvantages.length === 0">You have no advantages yet, because you haven't selected any <span class="text-red pointer" (click)="openTab(1)">Backgrounds</span> yet.</md-card>
+	</div>
+	<div class="char-box inline" *ngIf="sorceryTimes > 0">
+
+	<h2>Sorcery</h2>
+	<p>You have it.</p>
+	</div>
+</md-tab>
+	<md-tab label="Arcana and Stories">
+		<div class="char-box small-box inline">
+			<h2>Arcana</h2>
+			<form>
+				<md-select class="select-wide" placeholder="Select Virtue" [ngModel]="selectedArcana[0]" (ngModelChange)="onArcanaChange($event, 0)" name="arcana_1">
+				    <md-option *ngFor="let arcana of arcanaOptions" [value]="arcana">
+						{{arcana.virtue.name}} ({{arcana.name}})
+				    </md-option>
+				</md-select>
+				<md-select class="select-wide" placeholder="Select Hubris" [ngModel]="selectedArcana[1]" (ngModelChange)="onArcanaChange($event, 1)" name="arcana_2">
+				    <md-option *ngFor="let arcana of arcanaOptions" [value]="arcana">
+						{{arcana.hubris.name}} ({{arcana.name}})
+				    </md-option>
+				</md-select>
+				<div class="margin-top">
+					<button md-raised-button (click)="randomArcana()" class="margin-left">Randomize</button> 
+				</div>
+			</form>
+			<md-card class="margin-top">
+				<md-list *ngIf="selectedArcana[0].name !== '---' || selectedArcana[1].name !== '---'" style="padding-top:0">
+				<div *ngFor="let arcana of selectedArcana let i = index" class="">
+					<md-list-item *ngIf="arcana.name !== '---'">
+						<span *ngIf="i === 0">Virtue: {{arcana.virtue.name}} ({{arcana.name}})</span>
+						<span *ngIf="i === 1">Hubris: {{arcana.hubris.name}} ({{arcana.name}})</span>
+					</md-list-item>
+					<md-list-item class="md-caption" *ngIf="arcana.name !== '---'">
+						<p><span *ngIf="i === 0">{{arcana.virtue.description}}</span>
+						<span *ngIf="i === 1">{{arcana.hubris.description}}</span></p>
+					</md-list-item>
+				</div>
+				</md-list>
+				<p *ngIf="selectedArcana[0].name === '---'">No Virtue selected</p>
+				<p *ngIf="selectedArcana[1].name === '---'">No Hubris selected</p>
+			</md-card>
+		</div>
+		<div class="char-box  small-box inline">
+			<h2>Stories</h2>
+			<md-card *ngIf="stories.length === 0">
+				<p>You have no stories added yet</p>
+			</md-card>
+			<div *ngIf="stories.length > 0">
+				<md-card *ngFor="let story of stories" [ngClass]="{'bg-grey': story.completed}">
+					<md-card-title>{{story.title}}</md-card-title>
+					<md-card-subtitle>{{story.beginning}}</md-card-subtitle>
+					<md-card-content>
+						<ol>
+							<li *ngFor="let step of story.steps">{{step}}</li>
+						</ol>
+						<p>{{story.ending}}</p>
+						<p><i>Reward: {{story.reward}}</i></p>
+					</md-card-content>
+				</md-card>
+			</div>
+			<div class="margin-top">
+				<button md-raised-button (click)="openStory()" disabled="{{showStoryForm}}">Add Story</button>
+			</div>
+		</div>
+		<div class="char-box small-box inline">
+			<md-card *ngIf="showStoryForm">
+			<md-card-title>Add Story</md-card-title>
+			<md-card-subtitle *ngIf="showStoryErrors" class="text-red">Fill all fields to add the Story</md-card-subtitle>
+			<md-card-content>
+				<md-input-container class="no-margin">
+					<input [(ngModel)]="currentStory.title" placeholder="Story title" md-input />
+				</md-input-container>
+				<md-input-container class="no-margin">
+					<input [(ngModel)]="currentStory.beginning" placeholder="Story beginning" md-input />
+				</md-input-container>
+				<md-input-container class="no-margin">
+					<input [(ngModel)]="currentStory.ending" placeholder="Story ending" md-input />
+				</md-input-container>
+				<md-input-container class="no-margin">
+					<input [(ngModel)]="currentStory.reward" placeholder="Story reward" md-input />
+				</md-input-container>
+				<md-input-container class="no-margin">
+					<input [(ngModel)]="currentStory.steps[0]" placeholder="Story step 1" md-input />
+				</md-input-container>
+				<md-input-container *ngIf="currentStory.steps.length > 1" class="inline-icon no-margin">
+					<input [(ngModel)]="currentStory.steps[1]" placeholder="Story step 2" md-input />
+					<md-icon (click)="removeStep(1)">remove_circle_outline</md-icon>
+				</md-input-container>
+				<md-input-container *ngIf="currentStory.steps.length > 2" class="inline-icon no-margin">
+					<input [(ngModel)]="currentStory.steps[2]" placeholder="Story step 3" md-input />
+					<md-icon (click)="removeStep(2)">remove_circle_outline</md-icon>
+				</md-input-container>
+				<md-input-container *ngIf="currentStory.steps.length > 3" class="inline-icon no-margin">
+					<input [(ngModel)]="currentStory.steps[3]" placeholder="Story step 4" md-input />
+					<md-icon (click)="removeStep(3)">remove_circle_outline</md-icon>
+				</md-input-container>
+				<md-input-container *ngIf="currentStory.steps.length > 4" class="inline-icon no-margin">
+					<input [(ngModel)]="currentStory.steps[4]" placeholder="Story step 5" md-input />
+					<md-icon (click)="removeStep(4)">remove_circle_outline</md-icon>
+				</md-input-container>
+				<div class="margin-top">
+					<button md-raised-button (click)="addStep()" *ngIf="currentStory.steps.length < 5">Add Step</button>
+				</div>
+				<md-slide-toggle color="primary" [(ngModel)]="currentStory.completed">Story already completed</md-slide-toggle>
+			</md-card-content>
+			<md-card-actions  style="text-align: right">
+				<button (click)="cancelStory()" md-button>CANCEL</button>
+				<button (click)="addStory()" md-button>SAVE</button>
+			</md-card-actions>
+		</md-card>
+	</div>
+	</md-tab>
+</md-tab-group>
+<!--div>
+	<h2>Traits</h2>
+	<md-list>
+		<md-list-item *ngFor="let trait of traits; let traitIndex = index" class="">
+			{{trait.name}}
+			<span *ngFor="let dot of dots; let i = index" class="">
+				<md-icon *ngIf="i < trait.value">lens</md-icon>
+				<md-icon *ngIf="i >= trait.value">panorama_fish_eye</md-icon>
+			</span>
+		</md-list-item>
+	</md-list>
+	<h2>Skills</h2>
+	<md-list>
+		<md-list-item *ngFor="let skill of skills; let skillIndex = index" class="">
+			{{skill.name}}
+			<span *ngFor="let dot of dots; let i = index" class="">
+				<md-icon *ngIf="i < skill.base + skill.value">lens</md-icon>
+				<md-icon *ngIf="i >= skill.base + skill.value">panorama_fish_eye</md-icon>
+			</span>
+		</md-list-item>
+	</md-list>
+</div-->
+
+

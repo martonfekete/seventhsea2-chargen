@@ -6,7 +6,7 @@ import { MaterialModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import 'hammerjs';
-import 'lodash';
+import * as _ from 'lodash';
 
 import { CharGenOptions } from './app-usedata';
 

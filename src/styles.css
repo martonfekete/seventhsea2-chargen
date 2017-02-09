@@ -1,4 +1,107 @@
 /* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/core/theming/prebuilt/deeppurple-amber.css';
+body, input, md-select {
+	font-size:10pt;
+}
+h1 {
+	font-size:1.5em;
+}
+h2 {
+	font-size:1.3em;
+}
+h3 {
+	font-size:1.15em;
+	font-weight: normal;
+	padding-left: .5em;
+}
+md-select {
+	margin-top:22px;
+}
 .margin-bottom {
 	margin-bottom: 1em;
+}
+.margin-left {
+	margin-left: 1em;
+}
+.margin-top {
+	margin-top: 1em;
+}
+.no-margin {
+	margin: 0 !important;
+}
+.strong-text {
+	font-weight: bold;
+}
+.md-caption .md-list-item {
+	/*max-height:22px;*/
+	height: auto;
+}
+.md-caption p, .skill-caption {
+	font-size: smaller;
+	color: grey;
+	margin-left: 1em;
+}
+.select-wide, md-select {
+	width:180px;
+}
+.bg-grey {
+	background: rgba(155,155,155,.5);
+}
+.bg-shade {
+	background: rgba(178, 34, 34,.2);
+}
+md-input-container {
+	width: 100%;
+	margin-top:1em;
+}
+
+.char-box {
+	width:calc(50% - 1em);
+	margin:.4em;
+	padding:1em;
+	box-sizing: border-box;
+}
+
+.char-box.small-box {
+	min-width: 350px;
+	max-width: 400px;
+}
+
+.char-box h2, md-grid-tile h2 {
+	padding:.2em 1em;
+	color: white;
+	background: firebrick;
+	text-transform: uppercase;
+	font-weight: normal;
+}
+.inline {
+	display: inline-block;
+	vertical-align: top;
+}
+.inline-multi {
+	float:left;
+}
+
+md-card-content ol, md-card-content ol li {
+	margin-left: 0;
+	padding-left: 0;
+}
+.pointer {
+	cursor: pointer;
+}
+.text-red {
+	color: firebrick;
+}
+
+md-grid-tile figure {
+	justify-content: flex-start !important;
+}
+.inline-icon input {
+	width: 90% !important;
+	float: left;
+}
+.inline-icon md-icon {
+	font-size:1.25em;
+	color: firebrick;
+	float: right;
 }
