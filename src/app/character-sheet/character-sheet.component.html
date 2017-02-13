@@ -1,0 +1,135 @@
+<div class="char-box small inline">
+	<h2>Information</h2>
+	<ul class="rank-list">
+		<li *ngFor="let info of finalData.info; let traitIndex = index; let odd = odd" class="" [ngClass]="{'bg-grey': odd}">
+			<span class="strong-text rank-name">{{info.name}}</span><span class="sep">{{info.value}}</span>
+		</li>
+	</ul>
+	<h2>Arcana</h2>
+	<div *ngFor="let arcana of finalData.arcana; let i = index" class="char-box-block">
+		<p class="text-truncate">{{arcana.name}} <i>({{i === 0 ? 'Virtue' : 'Hubris'}} of {{arcana.arc}})</i></p>
+		<p class="md-caption">{{arcana.desc}}</p>
+	</div>
+	<h2>Traits</h2>
+	<ul class="rank-list">
+		<li *ngFor="let trait of finalData.traits; let traitIndex = index; let odd = odd" class="" [ngClass]="{'bg-grey': odd}">
+			<div class="rank-name align">{{trait.name}}</div>
+			<span *ngFor="let dot of dots; let i = index" class="">
+				<md-icon *ngIf="i < trait.value">lens</md-icon>
+				<md-icon *ngIf="i >= trait.value">panorama_fish_eye</md-icon>
+			</span>
+		</li>
+	</ul>
+</div>
+<div class="char-box small inline">
+	<h2>Skills</h2>
+	<ul class="rank-list">
+		<li *ngFor="let skill of finalData.skills; let skillIndex = index; let odd = odd" class="" [ngClass]="{'bg-grey': odd}">
+			<div class="rank-name align">{{skill.name}}</div>
+			<span *ngFor="let dot of dots; let i = index" class="">
+				<md-icon *ngIf="i < skill.value">lens</md-icon>
+				<md-icon *ngIf="i >= skill.value">panorama_fish_eye</md-icon>
+			</span>
+			<span class="skill-caption" *ngIf="skill.tip"><br/>{{skill.tip}}</span>
+		</li>
+	</ul>
+</div>
+<div class="char-box small inline">
+	<h2>Backgrounds</h2>
+	<div *ngFor="let bg of finalData.backgrounds; let i = index" class="char-box-block">
+		<p>{{bg.name}}</p>
+		<p class="md-caption">{{bg.desc}}</p>
+	</div>
+
+	<md-card *ngFor="let story of finalData.stories" class="story-card">
+		<md-card-title><h2 [ngClass]="{'bg-darkgrey': story.completed}" class="text-truncate">Story: {{story.title}}</h2></md-card-title>
+		<md-card-subtitle>{{story.beginning}}</md-card-subtitle>
+		<md-card-content>
+		<table> <tr>
+			<th>Ending</th>
+			<th>Reward</th> </tr>
+			<tr><td>{{story.ending}}</td>
+			<td>{{story.reward}}</td> </tr>
+		</table>
+		<p>Steps</p>
+			<ol>
+				<li *ngFor="let step of story.steps">{{step}}</li>
+			</ol>
+		</md-card-content>
+	</md-card>
+
+	<div *ngIf="finalData.ship.ship_name || finalData.misc.item !== '' || finalData.misc.comp !== ''" class="indented">
+		<h2>Additional info</h2>
+		<div *ngIf="finalData.ship.ship_name">
+			<h3>Ship: {{finalData.ship.ship_name}}</h3>
+			<ul class="rank-list">
+			<li> <span class="rank-name">Class</span><span class="sep">{{finalData.ship.ship_class}}</span> </li>
+			<li> <span class="rank-name">Origin</span><span class="sep">{{finalData.ship.ship_origin}}</span> </li>
+			<li> <span class="rank-name">Background</span><span class="sep">{{finalData.ship.ship_bg}}</span> </li>
+			</ul>
+		</div>
+
+		<div *ngIf="finalData.misc.item !== ''">
+			<h3>Signature Item</h3>
+			<p>{{finalData.misc.item}}</p>
+		</div>
+
+		<div *ngIf="finalData.misc.comp !== ''">
+			<h3>Trusted companion(s)</h3>
+			<p>{{finalData.misc.comp}}</p>
+		</div>
+	</div>
+</div>
+<div class="char-box small inline">
+	<h2>Advantages</h2>
+	<div *ngFor="let adv of finalData.advantages; let i = index" class="char-box-block">
+		<p>{{adv.name}}</p>
+		<p class="md-caption">{{adv.desc}}</p>
+	</div>
+	<!--h2>Wounds</h2>
+	<div *ngFor="let line of lines; let i = index" class="with-explanation">
+		<span *ngFor="let dot of dots; let i = index" class="">
+			<md-icon *ngIf="i < 4">panorama_fish_eye</md-icon>
+			<md-icon *ngIf="i === 4" class="dramatic-icon">star_border</md-icon>
+		</span>
+		<span class="sep" *ngIf="i === 0">+1 Die to all Risks</span>
+		<span class="sep" *ngIf="i === 1">+Villains gain +2 Dice</span>
+		<span class="sep" *ngIf="i === 2">10s explode Risks</span>
+		<span class="sep" *ngIf="i === 3">You're Helpless</span>
+	</div-->
+</div>
+<div style="width:100%;display: block;text-align: center; border-top: thin solid firebrick">
+	<table class="wounds-table">
+	<tr>
+		<td class="strong-text">
+			WOUNDS
+		</td>
+		<td *ngFor="let line of lines; let i = index" class="with-explanation">
+			<span *ngFor="let dot of dots; let i = index" class="">
+				<md-icon *ngIf="i < 4">panorama_fish_eye</md-icon>
+				<md-icon *ngIf="i === 4" class="dramatic-icon">star_border</md-icon>
+			</span>
+		</td>
+		<td class="with-explanation"> </td>
+	</tr>
+	<tr>
+		<td> </td> <td> </td>
+		<td class="sep"><md-icon>done</md-icon>+1 Die to all Risks </td>
+		<td class="sep"><md-icon>done</md-icon>Villains gain +2 Dice </td>
+		<td class="sep"><md-icon>done</md-icon>10s explode </td>
+		<td class="sep">You're Helpless </td> </tr>
+	</table>
+	<!--strong>WOUNDS</strong><span class="sep"></span>
+	<span *ngFor="let line of lines; let i = index" class="with-explanation">
+		<span *ngFor="let dot of dots; let i = index" class="">
+			<md-icon *ngIf="i < 4">panorama_fish_eye</md-icon>
+			<md-icon *ngIf="i === 4" class="dramatic-icon">star_border</md-icon>
+		</span>
+	</span>
+	<
+	<span class="sep" *ngIf="i === 0">+1 Die to all Risks</span>
+	<span class="sep" *ngIf="i === 1">Villains gain +2 Dice</span>
+	<span class="sep" *ngIf="i === 2">10s explode Risks</span>
+	<span class="sep" *ngIf="i === 3">You're Helpless</span>
+	-->
+</div>

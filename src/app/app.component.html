@@ -1,4 +1,4 @@
-<md-grid-list cols="6" rowHeight="36px">
+<md-grid-list cols="6" rowHeight="36px" *ngIf="!showCharSheet">
 	<md-grid-tile colspan="5" rowspan="3">
 		<h1>
 			{{title}}
@@ -11,22 +11,25 @@
 		<button md-button (click)="resetSheet()"><md-icon>clear</md-icon>Reset Values</button>
 	</md-grid-tile>
 	<md-grid-tile>
-	<button md-button (click)="generateSheet()"><md-icon>description</md-icon>Generate Hero Sheet</button>
+		<button md-button (click)="generateSheet()"><md-icon>description</md-icon>Generate Hero Sheet</button>
 	</md-grid-tile>
+	<!--md-grid-tile>
+		<a href="http://johnwickpresents.com/wp-content/uploads/2017/02/basic-rules-setting-20170110.pdf" class="linkbutton"><button md-button><md-icon>label_outline</md-icon>Setting Reference</button></a>
+	</md-grid-tile>
+	<md-grid-tile>
+		<a href="http://johnwickpresents.com/wp-content/uploads/2017/02/basic-rules-characters-20170110.pdf" class="linkbutton"><button md-button><md-icon>label_outline</md-icon>Character Reference</button></a>
+	</md-grid-tile>
+	<md-grid-tile>
+	<a href="http://johnwickpresents.com/wp-content/uploads/2017/02/basic-rules-playing-the-game-20170110.pdf" class="linkbutton"><button md-button><md-icon>label_outline</md-icon>System Reference</button></a>
+	</md-grid-tile-->
 </md-grid-list>
 
-<md-tab-group selectedIndex="{{tabIndex}}">
-<md-tab label="People and Traits">
-	<div class="char-box inline">
-		<h2>Character information</h2>
-		<md-input-container *ngFor="let info of charInfo; let i = index" class="no-margin">
-			<input [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" md-input />
-		</md-input-container>
-	</div>
-
+<app-character-sheet *ngIf="showCharSheet" [character]="passCharacter()" id="printThis"></app-character-sheet>
+<md-tab-group selectedIndex="{{tabIndex}}" *ngIf="!showCharSheet">
+<md-tab label="Info and Backgrounds">
 	<div class="char-box inline">
 		<div>
-			<h2>Nation</h2>
+			<h2>Nationality</h2>
 			<form>
 				<md-select placeholder="Select Nationality" [ngModel]="selectedPeople" (ngModelChange)="onPeopleChange($event)" name="people">
 				    <md-option *ngFor="let people of peopleOptions" [value]="people">
@@ -35,9 +38,53 @@
 				</md-select>
 			</form>
 		</div>
+		<h2>Character information</h2>
+		<div *ngFor="let info of charInfo; let i = index" class="">
+			<md-input-container *ngIf="!info.hidden" class="no-margin">
+				<input [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" md-input />
+			</md-input-container>
+		</div>
+		<div class="margin-top">
+			<button md-raised-button (click)="generateRandomName('male')" *ngIf="selectedPeople.code !== 'null'">Random Male Name</button>
+			<button md-raised-button (click)="generateRandomName('female')" *ngIf="selectedPeople.code !== 'null'">Random Female Name</button>
+		</div>
+	</div>
+
+	<div class="char-box inline">
+	<h2>Backgrounds</h2>
+	<form>
+		<md-select placeholder="Select fist background" [ngModel]="selectedBackgrounds[0]" (ngModelChange)="onBackgroundChange($event, 0)" name="background_1">
+		    <md-option *ngFor="let bg of backgroundOptions" [value]="bg">
+				{{bg.name}}
+		    </md-option>
+		</md-select>
+		<md-select placeholder="Select second background" [ngModel]="selectedBackgrounds[1]" (ngModelChange)="onBackgroundChange($event, 1)" name="background_2">
+		    <md-option *ngFor="let bg of backgroundOptions" [value]="bg" disabled="{{bg.name === selectedBackgrounds[0].name && bg.quirk !== '---'}}">
+				{{bg.name}}
+		    </md-option>
+		</md-select>
+		<div class="margin-top">
+			<button md-raised-button (click)="randomBackground()" class="margin-left">Randomize</button> 
+		</div>
+	</form>
+	<md-list>
+		<div *ngFor="let bg of selectedBackgrounds">
+			<md-list-item *ngIf="bg.name !== 'None selected'">
+				{{bg.name}}
+			</md-list-item>
+			<md-list-item class="md-caption" *ngIf="bg.quirk !== '---'">
+				<p>{{bg.quirk}}</p>
+			</md-list-item>
+		</div>
+	</md-list>
+	</div>
+</md-tab>
+<md-tab label="Traits and Skills">
+	
+	<div class="char-box inline">
 		<div class="margin-top">
 		<h2>Traits</h2>
-			<p *ngIf="!freeForm"><strong>Trait points remaining: {{points.traits}}</strong>, national bonus points: {{points.national}}</p>
+			<p [ngClass]="{'text-grey': freeForm}"><strong>Trait points remaining: {{freeForm ? '--' : points.traits}}</strong>, national bonus points: {{freeForm ? '--' : points.national}}</p>
 			<md-grid-list cols="2" rowHeight="2.5em" *ngFor="let trait of traits; let traitIndex = index" class="" [ngClass]="{'bg-shade': traitIndex%2 === 1}">
 				<md-grid-tile>
 					<h3 style="text-align: left" [ngClass]="{'strong-text': trait.favored}">{{trait.name}}</h3>
@@ -51,39 +98,11 @@
 			</md-grid-list>
 		</div>
 	</div>
-</md-tab>
-<md-tab label="Backgrounds and Skills">
-	<div class="char-box inline">
 
-	<h2>Backgrounds</h2>
-	<form>
-		<md-select placeholder="Select fist background" [ngModel]="selectedBackgrounds[0]" (ngModelChange)="onBackgroundChange($event, 0)" name="background_1">
-		    <md-option *ngFor="let bg of backgroundOptions" [value]="bg">
-				{{bg.name}}
-		    </md-option>
-		</md-select>
-		<md-select placeholder="Select second background" [ngModel]="selectedBackgrounds[1]" (ngModelChange)="onBackgroundChange($event, 1)" name="background_2">
-		    <md-option *ngFor="let bg of backgroundOptions" [value]="bg">
-				{{bg.name}}
-		    </md-option>
-		</md-select>
-	</form>
-	<md-list>
-		<div *ngFor="let bg of selectedBackgrounds">
-			<md-list-item *ngIf="bg.name !== 'None selected'">
-				{{bg.name}}
-			</md-list-item>
-			<md-list-item class="md-caption" *ngIf="bg.quirk !== '---'">
-				<p>{{bg.quirk}}</p>
-			</md-list-item>
-		</div>
-	</md-list>
-	</div>
 	<div class="char-box inline">
-
 	<h2>Skills</h2>
 
-	<p *ngIf="!freeForm"><strong>Skill points remaining: {{points.skills}}</strong></p>
+	<p [ngClass]="{'text-grey': freeForm}"><strong>Skill points remaining: {{freeForm ? '--' : points.skills}}</strong></p>
 
 	<md-grid-list cols="2" rowHeight="2.5em" *ngFor="let skill of skills; let skillIndex = index; let odd = odd" class="" [ngClass]="{'bg-shade': odd}">
 		<md-grid-tile>
@@ -96,9 +115,6 @@
 			</span>
 			<md-icon *ngIf="skill.base === 0 && skill.value > 0" class="pointer" (click)="setCharValue('skills', skillIndex, 0)">clear</md-icon>
 		</md-grid-tile>
-		<!--md-grid-tile>
-			<span class="skill-caption">{{skill.tip}}</span>
-		</md-grid-tile-->
 	</md-grid-list>
 	</div>
 </md-tab>
@@ -106,13 +122,16 @@
 	<div class="char-box inline-multi">
 	<h2>All Advantages</h2>
 
-	<p><strong>Advantage points remaining: {{points.advantages}}</strong></p>
+	<p [ngClass]="{'text-grey': freeForm}"><strong>Advantage points remaining: {{freeForm ? '--' : points.advantages}}</strong></p>
 
 	<md-list>
-		<md-list-item *ngFor="let adv of advantageOptions let i = index">
+		<md-list-item *ngFor="let adv of advantageOptions let i = index" class="">
+			<!--
+			<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
+			-->
 			<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}" *ngIf="adv.name !== 'Sorcery'">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
-			<p style="margin-left:28px" *ngIf="adv.name === 'Sorcery'">{{adv.name}} - Rank {{sorceryTimes}} ({{adv.cost}} points)
-			<button (click)="decreaseSorcery()" md-button>-</button>
+			<p style="margin-left:28px" *ngIf="adv.name === 'Sorcery'" [ngClass]="{'text-grey': adv.disabled}">{{adv.name}} - Rank {{sorceryTimes}} ({{adv.cost}} points)
+			<button (click)="decreaseSorcery()" md-button disabled="{{adv.disabled}}">-</button>
 			<button (click)="increaseSorcery()" md-button disabled="{{adv.disabled}}">+</button></p>
 		</md-list-item>
 	</md-list>
@@ -123,21 +142,26 @@
 
 	<md-list *ngIf="selectedAdvantages.length > 0">
 		<div *ngFor="let adv of selectedAdvantages let i = index" class="">
-			<md-list-item>
-				{{adv.name}}
-			</md-list-item>
-			<md-list-item class="md-caption">
-				<p>{{adv.description}}</p>
-			</md-list-item>
+			<!--span *ngIf="adv.name !== 'Sorcery'"-->
+				<md-list-item>
+					{{adv.name}}
+				</md-list-item>
+				<md-list-item class="md-caption">
+					<p>{{adv.description}}</p>
+				</md-list-item>
+			<!--/span-->
 		</div>
 	</md-list>
-	<md-card *ngIf="selectedAdvantages.length === 0">You have no advantages yet, because you haven't selected any <span class="text-red pointer" (click)="openTab(1)">Backgrounds</span> yet.</md-card>
+	<md-card *ngIf="selectedAdvantages.length === 0">You have no advantages yet. It' recommended to select your <span class="text-red pointer" (click)="openTab(0)">Backgrounds</span> first as they provide free advantages.</md-card>
 	</div>
-	<div class="char-box inline" *ngIf="sorceryTimes > 0">
-
-	<h2>Sorcery</h2>
-	<p>You have it.</p>
-	</div>
+	<!--div class="char-box inline" *ngIf="sorceryTimes > 0">
+		<h2>Sorcery</h2>
+		<div *ngFor="let adv of advantageOptions let i = index">
+			<p style="margin-left:28px" *ngIf="adv.name === 'Sorcery'" [ngClass]="{'text-grey': adv.disabled}">{{adv.name}} - Rank {{sorceryTimes}} ({{adv.cost}} points)
+			<button (click)="decreaseSorcery()" md-button disabled="{{adv.disabled}}">-</button>
+			<button (click)="increaseSorcery()" md-button disabled="{{adv.disabled}}">+</button></p>
+		</div>
+	</div-->
 </md-tab>
 	<md-tab label="Arcana and Stories">
 		<div class="char-box small-box inline">
@@ -174,26 +198,33 @@
 				<p *ngIf="selectedArcana[1].name === '---'">No Hubris selected</p>
 			</md-card>
 		</div>
-		<div class="char-box  small-box inline">
-			<h2>Stories</h2>
-			<md-card *ngIf="stories.length === 0">
-				<p>You have no stories added yet</p>
+		<div class="char-box small-box inline">
+			<md-card *ngIf="stories.length === 0" class="story-card">
+				<md-card-title><h2>No stories</h2></md-card-title>
+				<md-card-content style="padding: 1em">
+					You have no stories yet. Start by <span class="text-red pointer" (click)="openStory()">adding your first</span>.
+				</md-card-content>
 			</md-card>
 			<div *ngIf="stories.length > 0">
-				<md-card *ngFor="let story of stories" [ngClass]="{'bg-grey': story.completed}">
-					<md-card-title>{{story.title}}</md-card-title>
+				<md-card *ngFor="let story of stories" class="story-card">
+					<md-card-title><h2 [ngClass]="{'bg-darkgrey': story.completed}">{{story.title}}</h2></md-card-title>
 					<md-card-subtitle>{{story.beginning}}</md-card-subtitle>
 					<md-card-content>
+					<table> <tr>
+						<th> Ending </th>
+						<th> Reward </th> </tr>
+						<tr> <td> {{story.ending}} </td>
+						<td> {{story.reward}} </td> </tr>
+					</table>
+					<p>Steps</p>
 						<ol>
 							<li *ngFor="let step of story.steps">{{step}}</li>
 						</ol>
-						<p>{{story.ending}}</p>
-						<p><i>Reward: {{story.reward}}</i></p>
 					</md-card-content>
 				</md-card>
 			</div>
 			<div class="margin-top">
-				<button md-raised-button (click)="openStory()" disabled="{{showStoryForm}}">Add Story</button>
+				<button md-raised-button (click)="openStory()" disabled="{{showStoryForm}}" *ngIf="stories.length > 0" >Add Another Story</button>
 			</div>
 		</div>
 		<div class="char-box small-box inline">
@@ -205,7 +236,7 @@
 					<input [(ngModel)]="currentStory.title" placeholder="Story title" md-input />
 				</md-input-container>
 				<md-input-container class="no-margin">
-					<input [(ngModel)]="currentStory.beginning" placeholder="Story beginning" md-input />
+					<input [(ngModel)]="currentStory.beginning" placeholder="Story concept" md-input />
 				</md-input-container>
 				<md-input-container class="no-margin">
 					<input [(ngModel)]="currentStory.ending" placeholder="Story ending" md-input />
@@ -244,28 +275,48 @@
 		</md-card>
 	</div>
 	</md-tab>
+	<md-tab label="Additional Details">
+		<div class="char-box small-box inline">
+			<h2>Wealth</h2>
+			<p>Select one of your skills that contributes to your profession and earns your Wealth.</p>
+			<md-select class="select-wide" placeholder="Profession Skill" [ngModel]="skillForWealth" (ngModelChange)="onWealthChange($event)" name="wealth_skill">
+			    <md-option *ngFor="let skill of skillForWealthList" [value]="skill">
+					{{skill.name}} ({{skill.base + skill.value}})
+			    </md-option>
+			</md-select>
+			<p>You start your session with {{charWealth}} Wealth Points.</p>
+		</div>
+		<div class="char-box small-box inline">
+			<h2> {{hasShip? '' : 'No'}} Ship</h2>
+			<p *ngIf="!hasShip">You don't have a ship. Pick the 'Married to the sea' advantage to gain access to your own ship.</p>
+			<div *ngIf="hasShip">
+				<p>You have a ship.</p>
+				<div *ngFor="let info of shipDetails; let i = index" class="">
+					<md-input-container class="no-margin">
+						<input [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" md-input />
+					</md-input-container>
+				</div>
+			</div>
+		</div>
+		<div class="char-box small-box inline">
+			<h2> {{hasItem? '' : 'No'}} Signature item</h2>
+			<p *ngIf="!hasItem">You don't have a signature item. Pick the 'Signature item' advantage to have your own signature item.</p>
+			<div *ngIf="hasItem">
+				<p>You have a signature item.</p>
+				<md-input-container>
+					<textarea  md-input placeholder="Describe your Item" [(ngModel)]="itemDesc"></textarea>
+				</md-input-container>
+			</div>
+		</div>
+		<div class="char-box small-box inline">
+			<h2> {{hasCompany? '' : 'No'}} Compainons</h2>
+			<p *ngIf="!hasCompany">You don't have any Followers. Pick the 'Trusted companion' advantage to have a small group or a selected person accompany you.</p>
+			<div *ngIf="hasCompany">
+				<p>You've got company.</p>
+				<md-input-container>
+					<textarea md-input placeholder="Describe your companion(s)" [(ngModel)]="companyDesc"></textarea>
+				</md-input-container>
+			</div>
+		</div>
+	</md-tab>
 </md-tab-group>
-<!--div>
-	<h2>Traits</h2>
-	<md-list>
-		<md-list-item *ngFor="let trait of traits; let traitIndex = index" class="">
-			{{trait.name}}
-			<span *ngFor="let dot of dots; let i = index" class="">
-				<md-icon *ngIf="i < trait.value">lens</md-icon>
-				<md-icon *ngIf="i >= trait.value">panorama_fish_eye</md-icon>
-			</span>
-		</md-list-item>
-	</md-list>
-	<h2>Skills</h2>
-	<md-list>
-		<md-list-item *ngFor="let skill of skills; let skillIndex = index" class="">
-			{{skill.name}}
-			<span *ngFor="let dot of dots; let i = index" class="">
-				<md-icon *ngIf="i < skill.base + skill.value">lens</md-icon>
-				<md-icon *ngIf="i >= skill.base + skill.value">panorama_fish_eye</md-icon>
-			</span>
-		</md-list-item>
-	</md-list>
-</div-->
-
-

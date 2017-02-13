@@ -1,0 +1,88 @@
+.char-box {
+	font-family: sans-serif;
+}
+.char-box.small {
+	/*max-width: 325px;*/
+	max-width: calc(100% / 4 - 13px);
+}
+.char-box h2 {
+	margin-bottom: 0;
+	text-align: center;
+	font-size: 1.15em;
+}
+.rank-name {
+	display: inline-block;
+	width:75px;
+}
+md-icon {
+	font-size: 16px;
+	height: 16px;
+	width: 16px;
+	position: relative;
+	top: 2px;
+}
+.rank-list {
+	margin-top: 0;
+	margin-left:0;
+	padding-left:0;
+	list-style-type: none;
+}
+.rank-list li {
+	padding: 5px 10px; 
+}
+.align {
+	position: relative;
+    top: -1px;
+}
+.sep {
+	width:10px;
+}
+.char-box-block {
+	margin-top:10px;
+}
+
+.char-box-block p:not(.md-caption) {
+	padding: 0;
+	margin: 0 5px 5px 10px;
+}
+p.md-caption {
+	margin: 0;
+	padding: 0;
+	font-size: smaller;
+	color: grey;
+	margin-left: 15px;
+}
+.story-card {
+	box-shadow: none;
+}
+.story-card md-card-title {
+	margin-bottom: 10px;
+}
+.story-card md-card-subtitle, .story-card table td, .story-card ol li {
+	font-size: smaller;
+}
+table.wounds-table {
+	table-layout: fixed;
+	margin: auto;
+}
+table.wounds-table .strong-text {
+	position: relative;
+	top: 4px;
+}
+td.with-explanation {
+	width:115px;
+}
+table.wounds-table .sep {
+	font-size: smaller;
+	margin-left: 10px;
+	font-style: italic;
+	color: grey;
+}
+table.wounds-table .sep md-icon {
+	top: 4px;
+}
+.dramatic-icon {
+	font-size: x-large;
+    top: 5px;
+    color: grey;
+}

@@ -9,10 +9,12 @@ import 'hammerjs';
 import * as _ from 'lodash';
 
 import { CharGenOptions } from './app-usedata';
+import { CharacterSheetComponent } from './character-sheet/character-sheet.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    CharacterSheetComponent
   ],
   imports: [
     BrowserModule,

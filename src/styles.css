@@ -6,7 +6,7 @@ body, input, md-select {
 h1 {
 	font-size:1.5em;
 }
-h2 {
+h2, .story-card h2 {
 	font-size:1.3em;
 }
 h3 {
@@ -39,6 +39,8 @@ md-select {
 .md-caption p, .skill-caption {
 	font-size: smaller;
 	color: grey;
+}
+.md-caption p {
 	margin-left: 1em;
 }
 .select-wide, md-select {
@@ -46,6 +48,12 @@ md-select {
 }
 .bg-grey {
 	background: rgba(155,155,155,.5);
+}
+.bg-darkgrey {
+	background: rgba(20,20,20,.5) !important;
+}
+.text-grey {
+	color: grey;
 }
 .bg-shade {
 	background: rgba(178, 34, 34,.2);
@@ -68,7 +76,7 @@ md-input-container {
 }
 
 .char-box h2, md-grid-tile h2 {
-	padding:.2em 1em;
+	padding:.2em 1em .1em;
 	color: white;
 	background: firebrick;
 	text-transform: uppercase;
@@ -82,9 +90,9 @@ md-input-container {
 	float:left;
 }
 
-md-card-content ol, md-card-content ol li {
+md-card-content ol {
 	margin-left: 0;
-	padding-left: 0;
+	padding-left: 1em;
 }
 .pointer {
 	cursor: pointer;
@@ -104,4 +112,59 @@ md-grid-tile figure {
 	font-size:1.25em;
 	color: firebrick;
 	float: right;
+}
+.linkbutton {
+	color: inherit;
+}
+
+.story-card {
+	padding: 0;
+}
+.story-card md-card-title {
+	font-size: inherit;
+}
+.story-card md-card-subtitle {
+	border-bottom: thin solid firebrick;
+	padding: 0 0 .5em 1em;
+	margin: 0;
+	color: inherit;
+}
+.story-card table {
+	width:100%;
+	font-size: small;
+	text-align: center;
+	border-bottom: thin solid firebrick;
+}
+.story-card p {
+	margin-left: 1em;
+	margin-bottom: 10px;
+	width:50px;
+	border-bottom: thin dashed firebrick;
+}
+.story-card md-card-content ol {
+	font-size: small;
+	padding-bottom: 1em;
+	margin-left: 1em;
+}
+.story-card md-card-content ol li {
+	margin-left: 0;
+	padding-left: 5px;
+}
+.text-truncate {
+	text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.indented h3 {
+	font-size: 1em;
+	font-weight: bold;
+	padding-bottom: 5px;
+	margin-bottom: 0;
+	border-bottom: thin solid firebrick;
+}
+.indented p {
+	padding-left: 1em;
+}
+.align-center {
+	text-align: center;
 }

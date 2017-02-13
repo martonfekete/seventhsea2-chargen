@@ -11,6 +11,8 @@ import { CharArcana } from './app-usedata';
 import { TheanPeople } from './app-usedata';
 
 declare const _:any
+declare var html2canvas: any;
+
 
 export interface CharPoints {
 	backgrounds: number,
@@ -35,9 +37,8 @@ export interface CharStory {
 	styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-	//title = 'Seventh Sea 2nd Edition Character Generator';
-  title = 'SOLVE ADVANTAGE BENEFITS NEXT moron';
-
+	title = 'Seventh Sea 2nd Edition Character Generator';
+  
 	traits: CharTraits[];
 	skills: CharSkills[];
 	peopleOptions: TheanPeople[];
@@ -63,6 +64,19 @@ export class AppComponent {
   charInfo: any[];
   tabIndex: number = 0;
 
+  showCharSheet: boolean = false;
+  
+  charWealth: number = 0;
+  hasShip: boolean = false;
+  shipDetails: any[];
+  hasItem: boolean = false;
+  itemDesc: string;
+  hasCompany: boolean = false;
+  companyDesc: string;
+  skillForWealthList: CharSkills[];
+  skillForWealth: CharSkills;
+
+
 	constructor(
 		private dataService: CharGenOptions,
     public storyDialog: MdDialog
@@ -78,12 +92,12 @@ export class AppComponent {
   resetSheet(ignore: boolean = false): void {
     if (!ignore) {
       this.charInfo = [
-        {value: '', label: 'Player', name: 'player'},
+        /*{value: '', label: 'Player', name: 'player'},*/
         {value: '', label: 'Character', name: 'character'},
         {value: '', label: 'Concept', name: 'concept'},
         {value: '', label: 'Religion', name: 'religion'},
-        {value: '', label: 'Reputations', name: 'reputations'},
-        {value: '', label: 'Wealth', name: 'wealth'}
+        {value: '', label: 'Reputations', name: 'reputations', hidden: true}/*,
+        {value: '', label: 'Wealth', name: 'wealth'}*/
       ];
       this.points = { traits: 2, national: 1, skills: 10, advantages: 5, backgrounds: 2 };
       this.traits = _.cloneDeep(this.dataService.traits);
@@ -104,9 +118,22 @@ export class AppComponent {
         this.arcanaOptions[0],
         this.arcanaOptions[0]
       ];
+      this.hasShip = false;
+      this.hasItem = false;
+      this.itemDesc = '';
+      this.hasCompany = false;
+      this.companyDesc = '';
+      this.shipDetails = [
+        {value: '', label: 'Name', name: 'ship_name', type: 'text'},
+        {value: '', label: 'Class', name: 'ship_class', type: 'select'},
+        {value: '', label: 'Origin', name: 'ship_origin', type: 'select'},
+        {value: '', label: 'Background', name: 'ship_bg', type: 'select'}
+      ];
+      this.skillForWealth = undefined;
       this._setupBaseSkills();
       this._updateAdvantageList('init');
       this._resetCurrentStory();
+      this.calculateWealth();
       this.freeForm = false;
     } else {
       this.freeForm = true;
@@ -164,7 +191,7 @@ export class AppComponent {
       if (this.freeForm) {
         this.skills[index].value = val;
       }
-      this._setupSkillTips();
+      this._setupSkillExtra();
     }
   }
 
@@ -192,7 +219,8 @@ export class AppComponent {
 		}
     if (!this.freeForm) {
       this._updateAdvantageList('restrict');
-    }  		this._updateSelectedAdvantages();
+    }
+		this._updateSelectedAdvantages();
 	}
 
   /* HANDLE CHANGES */
@@ -200,33 +228,49 @@ export class AppComponent {
 		this.selectedPeople = event;
 		this._selectFavoredTraits(this.selectedPeople.favor);
 		this._updateBackgroundList(this.selectedPeople.code);
+    this._updateAdvantageList('restrict');
 	}
 
 	onBackgroundChange(event, index): void {
 		this.selectedBackgrounds[index] = event;
 		this._setupBaseSkills();
 		this._updateAdvantageList('init');
+    this._updateSelectedAdvantages();
 	}
 
   onArcanaChange(event, index): void {
     this.selectedArcana[index] = event;
   }
 
+  onWealthChange(event): void {
+    this.skillForWealth = event;
+    this.calculateWealth();
+  }
+
 	onAdvantageUpdate(event, adv): void {
-		if (event) {
-			if ((adv.reduced === this.selectedPeople.code) || (adv.reduced === 'gla' && (this.selectedPeople.code === 'ava' || this.selectedPeople.code === 'ini' || this.selectedPeople.code === 'hig'))) {
-        this.points.advantages -= adv.cost === 5 ? 3 : adv.cost-1;
-      } else {
-        this.points.advantages -= adv.cost;
-      }
-			this._updateSelectedAdvantages(adv, 'add');
-		} else {
-			this.points.advantages += adv.cost;
-			this._updateSelectedAdvantages(adv, 'remove');
-		}
-		var _index = _.findIndex(this.advantageOptions, {name: adv.name});
-		this.advantageOptions[_index].bought = event;
-		if (!this.freeForm) {
+    var cost: number;
+    if ((adv.reduced === this.selectedPeople.code) || (adv.reduced === 'gla' && (this.selectedPeople.code === 'ava' || this.selectedPeople.code === 'ini' || this.selectedPeople.code === 'hig'))) {
+      cost = adv.cost === 5 ? 3 : adv.cost -1;
+    } else {
+      cost = adv.cost;
+    }
+    /*
+    if (adv.name === 'Sorcery' && event) {
+      this.increaseSorcery();
+    } else if (!event) {
+      this.decreaseSorcery();
+    }
+    */
+    if (!this.freeForm && adv.name !== 'Sorcery' && event) {
+      this.points.advantages -= cost;
+      this._updateSelectedAdvantages(adv, 'add');
+    } else if (!this.freeForm && adv.name !== 'Sorcery') {
+      this.points.advantages += cost;
+      this._updateSelectedAdvantages(adv, 'remove');
+    }
+    var _index = _.findIndex(this.advantageOptions, {name: adv.name});
+    this.advantageOptions[_index].bought = event;
+    if (!this.freeForm) {
       this._updateAdvantageList('restrict');
     }
     if (this.freeForm && event) {
@@ -241,6 +285,25 @@ export class AppComponent {
     for (var i = 0; i < 2; i++) {
       var _i = Math.round(Math.random() * 19 + 1);
       this.selectedArcana[i] = this.arcanaOptions[_i];
+    }
+  }
+
+  randomBackground(): void {
+    var sel: number;
+    for (var i = 0; i < 2; i++) {
+      var _i = Math.round(Math.random() * 19 + 1);
+      if (i === 0) {
+        sel = _i;
+      }
+      if (i === 1 && _i === sel) {
+        sel = _i+1;
+      } else {
+        sel = _i;
+      }
+      this.selectedBackgrounds[i] = this.backgroundOptions[sel];
+      this._setupBaseSkills();
+      this._setupSkillExtra();
+      this._updateAdvantageList('init');
     }
   }
 
@@ -269,7 +332,8 @@ export class AppComponent {
 		});
 	}
 
-	private _setupSkillTips(): void {
+	private _setupSkillExtra(): void {
+    this.skillForWealthList = [];
 		_.each(this.skills, (skill: CharSkills) => {
 			var total = skill.value + skill.base;
 			switch (total) {
@@ -286,6 +350,9 @@ export class AppComponent {
 					skill.tip = "";
 					break;
 			}
+      if (skill.value + skill.base > 0) {
+        this.skillForWealthList.push(skill);
+      }
 		});
 	}
 
@@ -312,17 +379,53 @@ export class AppComponent {
   				});
 				}
 			});
+      this._restrictSorcery(this.selectedPeople.code);
 		}
 		if (reason === 'restrict') {
 			_.each(this.advantageOptions, (adv: CharAdvantages) => {
-				if (!adv.bought && adv.cost > this.points.advantages) {
-					adv.disabled = true;
-				} else if (!adv.received) {
-					adv.disabled = false;
-				}
+        var people = 'null';
+        if (!_.isUndefined(adv.reduced) || !_.isUndefined(adv.restriction)) {
+          switch (this.selectedPeople.code) {
+            case "ava":
+              people = 'gla';
+              break;
+            case "ini":
+              people = 'gla';
+              break;
+            case "hig":
+              people = 'gla';
+              break;
+            default:
+              people = this.selectedPeople.code;
+              break;
+          }
+        }
+        if (!adv.bought && adv.cost > this.points.advantages) {
+          if ((adv.reduced === people) && ((adv.cost === 5 && adv.cost <= this.points.advantages + 2) || (adv.cost < 5 && adv.cost <= this.points.advantages + 1))) {
+            adv.disabled = false;
+          } else {
+            adv.disabled = true;
+          }
+        } else if (!adv.received) {
+          adv.disabled = false;
+        }
+        if (!_.isUndefined(adv.restriction) && adv.restriction !== people) {
+          adv.disabled = true;
+        }
 			});
+
+      this._restrictSorcery(this.selectedPeople.code);
 		}
 	}
+
+  private _restrictSorcery(code: string): void {
+      var sorcIndex = _.findIndex(this.advantageOptions, {name: 'Sorcery'});
+      if (code === 'cas' || code === 'ves') {
+        this.advantageOptions[sorcIndex].disabled = true;
+      } else {
+        this.advantageOptions[sorcIndex].disabled = false;
+      }
+  }
 
 	private _updateBackgroundList(code: string): void {
 		var _updated = [];
@@ -355,6 +458,8 @@ export class AppComponent {
 			var _index = _.findIndex(this.selectedAdvantages, {name: adv.name});
 			this.selectedAdvantages.splice(_index,1);
 		}
+
+    // sorcery
 		var _sorcIndex;
 		if (this.selectedAdvantages.length > 0) {
 		_sorcIndex = _.findIndex(this.selectedAdvantages, (item: any) => {
@@ -378,6 +483,41 @@ export class AppComponent {
 		} else if (this.sorceryTimes === 0 && _sorcIndex > -1) {
 			this.selectedAdvantages.splice(_sorcIndex, 1);
 		}
+    // reputation
+    var repuIndex: number = _.findIndex(this.selectedAdvantages, {name: 'Reputation'});
+    if (repuIndex > -1) {
+      this.charInfo[3].hidden = false;
+    } else {
+      this.charInfo[3].hidden = true;
+    }
+
+    // ship
+    var shipIndex: number = _.findIndex(this.selectedAdvantages, {name: 'Married to the sea'});
+    if (shipIndex > -1) {
+      this.hasShip = true;
+    } else {
+      this.hasShip = false;
+    }
+
+    // sign. item
+    var itemIndex: number = _.findIndex(this.selectedAdvantages, {name: 'Signature item'});
+    if (itemIndex > -1) {
+      this.hasItem = true;
+    } else {
+      this.hasItem = false;
+    }
+
+    // follower
+    var followIndex: number = _.findIndex(this.selectedAdvantages, {name: 'Trusted companion'});
+    if (followIndex > -1) {
+      this.hasCompany = true;
+    } else {
+      this.hasCompany = false;
+    }
+
+    this.calculateWealth();
+
+    this.selectedAdvantages = _.orderBy(this.selectedAdvantages, ['name']);
 	}
 
 	private _getSorceryType(): string {
@@ -457,7 +597,71 @@ export class AppComponent {
     };
   }
 
+  calculateWealth(): void {
+    this.charWealth = 0;
+    var patron = _.findIndex(this.selectedAdvantages, {name: 'Patron'});
+    var rich = _.findIndex(this.selectedAdvantages, {name: 'Rich'});
+    if (patron > -1) {
+      this.charWealth++;
+    }
+    if (rich > -1) {
+      this.charWealth += 3;
+    }
+    if (!_.isUndefined(this.skillForWealth)) {
+      this.charWealth += (this.skillForWealth.base + this.skillForWealth.value);
+    }
+  }
+
   generateSheet(): void {
-    console.log('generate');
+    this.showCharSheet = true;
+  }
+
+  generateRandomName(gender: string): void {
+    this.charInfo[0].value = this.dataService.getRandomName(gender, this.selectedPeople.code);
+  }
+
+  passCharacter(): any {
+    return {
+      info: this.charInfo,
+      nation: this.selectedPeople.name,
+      traits: this.traits,
+      backgrounds: this.selectedBackgrounds,
+      skills: this.skills,
+      arcana: this.selectedArcana,
+      advantages: this.selectedAdvantages,
+      stories: this.stories,
+      extras: {
+        wealth: this.charWealth,
+        ship: this.shipDetails,
+        item: this.itemDesc,
+        company: this.companyDesc
+      }
+    };
+  }
+
+  printSheet(): any {
+    var toPrint = document.getElementById('printThis');
+    html2canvas(toPrint, {
+    //html2canvas(document.body, {
+      onrendered: function(canvas) {
+        //document.body.appendChild(canvas);
+        
+        //convert canvas 2 image
+        var image = new Image();
+        image.src = canvas.toDataURL("image/png");
+        //document.body.appendChild(image);
+        
+        //download created image
+        var download = document.createElement('a');
+        download.href = image.src;
+        /*if (!_.isUndefined(this.charInfo[0].value)) {
+          download.download = this.charInfo[0].value +'.png';
+        } else {*/
+          download.download = 'seventhsea_sheet.png';
+        //}
+        download.click();
+      },
+        background: '#fff',
+      });
   }
 }
