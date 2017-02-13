@@ -664,4 +664,11 @@ export class AppComponent {
         background: '#fff',
       });
   }
+
+  activate(event: any): void {
+    this.showCharSheet = false;
+    if (event === 'reset') {
+      this.resetSheet();
+    }
+  }
 }

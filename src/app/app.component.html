@@ -24,7 +24,7 @@
 	</md-grid-tile-->
 </md-grid-list>
 
-<app-character-sheet *ngIf="showCharSheet" [character]="passCharacter()" id="printThis"></app-character-sheet>
+<app-character-sheet *ngIf="showCharSheet" [character]="passCharacter()" (refresh)="activate($event)" id="printThis"></app-character-sheet>
 <md-tab-group selectedIndex="{{tabIndex}}" *ngIf="!showCharSheet">
 <md-tab label="Info and Backgrounds">
 	<div class="char-box inline">

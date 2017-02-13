@@ -14,7 +14,7 @@
 	display: inline-block;
 	width:75px;
 }
-md-icon {
+md-icon:not(.regular) {
 	font-size: 16px;
 	height: 16px;
 	width: 16px;
