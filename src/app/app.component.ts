@@ -60,12 +60,15 @@ export class AppComponent {
   showStoryErrors = true;
 
   dots: any[];
-  freeForm: boolean;
-  charInfo: any[];
   tabIndex: number = 0;
-
+  freeForm: boolean;
   showCharSheet: boolean = false;
+  advCostRestriction: number = 5;
+  showAllAdv: boolean = false;
+  advQuery: string;
+  filteredAdvantages: CharAdvantages[];
   
+  charInfo: any[];
   charWealth: number = 0;
   hasShip: boolean = false;
   shipDetails: any[];
@@ -107,6 +110,10 @@ export class AppComponent {
       this.arcanaOptions = _.cloneDeep(this.dataService.arcana);
       this.allBackgrounds = _.cloneDeep(this.dataService.backgrounds);
       this.advantageOptions = _.cloneDeep(this.dataService.advantages);
+      this.filteredAdvantages = this.advantageOptions;
+      this.advCostRestriction = 5;
+      this.advQuery = '';
+      this.showAllAdv = true;
       this.selectedPeople = this.peopleOptions[0];
       this._selectFavoredTraits(this.selectedPeople.favor);
       this._updateBackgroundList(this.selectedPeople.code);
@@ -304,6 +311,23 @@ export class AppComponent {
       this._setupBaseSkills();
       this._setupSkillExtra();
       this._updateAdvantageList('init');
+    }
+  }
+
+  filterAdvantages(type: string = ''): void {
+    if (type === 'reset' && this.showAllAdv) {
+      this.advCostRestriction = 5;
+      this.filteredAdvantages = this.advantageOptions;
+    } else {
+      var query = this.advQuery.toLowerCase();
+      var _filteredList = [];
+      _.each(this.advantageOptions, (adv: CharAdvantages) => {
+        var _index = adv.name.toLowerCase().indexOf(query);
+        if (_index > -1) {
+          _filteredList.push(adv);
+        }
+      });
+      this.filteredAdvantages = _filteredList;
     }
   }
 

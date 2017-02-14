@@ -88,7 +88,7 @@ export class CharacterSheetComponent implements OnInit {
 		*/
 		_.each(data.backgrounds, (field: any) => {
 			this.finalData.backgrounds.push({
-				name: field.name, desc: field.quirk
+				name: field.name, desc: field.short
 			});
 		});
 		_.each(data.advantages, (field: any) => {

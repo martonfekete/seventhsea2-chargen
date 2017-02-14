@@ -24,6 +24,7 @@ export interface CharBackgrounds {
 	advantages: string[],
 	restriction?: string,
 	selected?: boolean,
+	short?: string
 }
 
 export interface CharAdvantages {
@@ -112,12 +113,12 @@ export class CharGenOptions {
 
 		this.backgrounds = [
 			{ name: 'none selected', quirk: '---', advantages: [], skills: [] },
-			{ name: 'archæologist ', quirk: 'earn a Hero Point when you turn an artifact of value over to a university, museum, or a publicly displayed site. ', advantages: ['signature item','eagle eyes'], skills: ['athletics','convince','notice','scholarship','theft'] },
-			{ name: 'aristocrat ', quirk: 'earn a Hero Point when you prove there is more to nobility than expensive clothes and attending court. ', advantages: ['rich', 'disarming smile'], skills: ['aim', 'convince', 'empathy', 'ride', 'scholarship']},
-			{ name: 'army officer ', quirk: 'earn a Hero Point when you seize command during a moment of intense violence or extreme danger. ', advantages: ['academy', 'direction sense'], skills: ['aim', 'athletics', 'intimidate', 'ride', 'warfare']},
-			{ name: 'artist ', quirk: 'earn a Hero Point when you make a sacrifce in the hope of making Théah a more beautiful place. ', advantages: ['patron', 'fascinate'], skills: ['convince', 'empathy', 'perform', 'ride', 'tempt']},
-			{ name: 'assassin ', quirk: 'earn a Hero Point when you go out of your way to avoid the death of an adversary or outright refuse a course of action because it could result in another person’s death. ', advantages: ['fencer', 'psst, over here'], skills: ['athletics', 'empathy', 'hide', 'intimidate', 'weaponry']},
-			{ name: 'cavalry ', quirk: 'earn a Hero Point when you apply your skills in horse riding to an uncommon situation. ', advantages: ['bruiser', 'indomitable will'], skills: ['intimidate', 'notice', 'ride', 'warfare', 'weaponry']},
+			{ name: 'archæologist ', quirk: 'earn a Hero Point when you turn an artifact of value over to a university, museum, or a publicly displayed site.', short: 'earn a Hero Point when you turn an artifact of value over to a museum or sorts.', advantages: ['signature item','eagle eyes'], skills: ['athletics','convince','notice','scholarship','theft'] },
+			{ name: 'aristocrat ', quirk: 'earn a Hero Point when you prove there is more to nobility than expensive clothes and attending court.', advantages: ['rich', 'disarming smile'], skills: ['aim', 'convince', 'empathy', 'ride', 'scholarship']},
+			{ name: 'army officer ', quirk: 'earn a Hero Point when you seize command during a moment of intense violence or extreme danger.', advantages: ['academy', 'direction sense'], skills: ['aim', 'athletics', 'intimidate', 'ride', 'warfare']},
+			{ name: 'artist ', quirk: 'earn a Hero Point when you make a sacrifce in the hope of making Théah a more beautiful place.', advantages: ['patron', 'fascinate'], skills: ['convince', 'empathy', 'perform', 'ride', 'tempt']},
+			{ name: 'assassin ', quirk: 'earn a Hero Point when you go out of your way to avoid the death of an adversary or outright refuse a course of action because it could result in another person’s death. ', short: 'earn a Hero Point when you go out of your way to avoid the death of an adversary.', advantages: ['fencer', 'psst, over here'], skills: ['athletics', 'empathy', 'hide', 'intimidate', 'weaponry']},
+			{ name: 'cavalry ', quirk: 'earn a Hero Point when you apply your skills in horse riding to an uncommon situation.', advantages: ['bruiser', 'indomitable will'], skills: ['intimidate', 'notice', 'ride', 'warfare', 'weaponry']},
 			{ name: 'courtier ', quirk: 'earn a Hero Point when you turn the tide of violence with charm and flair. ', advantages: ['an honest misunderstanding', 'friend at court'], skills: ['empathy', 'perform', 'ride', 'tempt', 'weaponry']},
 			{ name: 'crafter ', quirk: 'earn a Hero Point when you use everyday crafting skills to solve a problem deemed too complex for such a simple solution. ', advantages: ['masterpiece crafter', 'handy'], skills: ['athletics', 'convince', 'notice', 'perform', 'scholarship']},
 			{ name: 'criminal ', quirk: 'earn a Hero Point when you break the law in the pursuit of a noble endeavor. ', advantages: ['camaraderie', 'streetwise'], skills: ['athletics', 'empathy', 'hide', 'intimidate', 'theft']},
@@ -148,7 +149,7 @@ export class CharGenOptions {
 			{ name: 'knight errant', quirk: 'earn a Hero Point when you uphold an ideal of knightly virtue in a way that gets you into trouble.', advantages: ['sorcery', 'sorcery', 'direction sense'], skills: ['brawl', 'intimidate', 'ride', 'warfare', 'weaponry'], restriction: 'gla'},
 			{ name: 'privateer ', quirk: 'earn a Hero Point when you defeat the enemies of the crown of avalon.', advantages: ['the devil’s own luck', 'perfect balance'], skills: ['notice', 'sailing', 'tempt', 'theft', 'weaponry'], restriction: 'gla'},
 			{ name: 'unification agent', quirk: 'earn a Hero Point when you ensure the stability of the glamour isles unifcation.', advantages: ['university', 'survivalist'] , skills: ['aim', 'empathy', 'notice', 'scholarship', 'tempt'], restriction: 'gla'},
-			{ name: 'puritan', quirk: 'earn a Hero Point when you expose corruption, hypocrisy, or ineffectiveness within the vaticine church. ', advantages: ['dynamic approach', 'reputation'], skills: ['convince', 'empathy', 'intimidate', 'ride', 'scholarship'], restriction: 'ava'},
+			{ name: 'puritan', quirk: 'earn a Hero Point when you expose corruption, hypocrisy, or ineffectiveness within the vaticine church.', short: 'earn a Hero Point when you expose corruption within the Church.', advantages: ['dynamic approach', 'reputation'], skills: ['convince', 'empathy', 'intimidate', 'ride', 'scholarship'], restriction: 'ava'},
 			{ name: 'saoi (wise one)', quirk: 'earn a Hero Point when you put yourself in harm’s way to protect the artists of Théah. ', advantages: ['team player', 'disarming smile', 'able drinker '], skills: ['athletics', 'convince', 'empathy', 'perform', 'weaponry'], restriction: 'ini'},
 			{ name: 'seanchaidh (warrior-poet)', quirk: 'earn a Hero Point when you enforce the ancient laws of your people. ', advantages: ['riot breaker', 'linguist'], skills: ['convince', 'notice', 'perform', 'ride', 'weaponry'], restriction: 'hig'},
 			{ name: 'alquimista ', quirk: 'earn a Hero Point when you improve another Théan\'s life through alchemy. ', advantages: ['alchemist', 'cast iron stomach '], skills: ['empathy', 'notice', 'scholarship', 'tempt', 'theft'], restriction: 'cas'},
@@ -157,7 +158,7 @@ export class CharGenOptions {
 			{ name: 'mirabilis (priest) ', quirk: 'earn a Hero Point when you give of yourself to demonstrate the warmth and compassion of the vaticine church. ', advantages: ['ordained', 'spark of genius'], skills: ['convince', 'empathy', 'perform', 'ride', 'scholarship'], restriction: 'cas'},
 			{ name: 'hexe ', quirk: 'earn a Hero Point when you go out of your way to ensure that the dead stay dead. ', advantages: ['sorcery', 'sorcery', 'cast iron stomach'], skills: ['athletics', 'intimidate', 'notice', 'tempt', 'weaponry'], restriction: 'eis'},
 			{ name: 'krieger (warrior) ', quirk: 'earn a Hero Point when you choose to fght to defend the defenseless or prevent destruction. ', advantages: ['staredown', 'academy'], skills: ['aim', 'athletics', 'ride', 'warfare', 'weaponry'], restriction: 'eis'},
-			{ name: 'ungetümjäger (monster hunter) ', quirk: 'earn a Hero Point when you choose to hunt down an inhuman creature so it will never hurt anyone ever again. ', advantages: ['i won\'t die here', 'indomitable will'], skills: ['aim', 'athletics', 'brawl', 'notice', 'weaponry'], restriction: 'eis'},
+			{ name: 'ungetümjäger (monster hunter) ', quirk: 'earn a Hero Point when you choose to hunt down an inhuman creature so it will never hurt anyone ever again. ', short: 'earn a Hero Point when you choose to hunt down an inhuman creature.', advantages: ['i won\'t die here', 'indomitable will'], skills: ['aim', 'athletics', 'brawl', 'notice', 'weaponry'], restriction: 'eis'},
 			{ name: 'vitalienbruder (pirate) ', quirk: 'earn a Hero Point when you take from the rich to give to the poor. ', advantages: ['leadership', 'streetwise', 'sea legs'], skills: ['brawl', 'hide', 'sailing', 'theft', 'warfare'], restriction: 'eis'},
 			{ name: 'l\'ami du roi (courtier) ', quirk: 'earn a Hero Point when you leverage the king\'s favor to solve a problem. ', advantages: ['connection', 'friend at court', 'linguist'], skills: ['convince', 'perform', 'ride', 'tempt', 'weaponry'], restriction: 'mon'},
 			{ name: 'mousquetaire ', quirk: 'earn a Hero Point when you take a serious injury to protect your comrades or king. ', advantages: ['camaraderie', 'quick reflexes'], skills: ['aim', 'intimidate', 'notice', 'ride', 'weaponry'], restriction: 'mon'},
@@ -172,10 +173,10 @@ export class CharGenOptions {
 			{ name: 'touched by matushka ', quirk: 'earn a Hero Point when you teach someone a lesson in a way that would make matushka proud. ', advantages: ['sorcery', 'sorcery', 'survivalist'], skills: ['athletics', 'intimidate', 'perform', 'tempt', 'theft'], restriction: 'uss'},
 			{ name: 'whaler ', quirk: 'earn a Hero Point when you face a creature that could swallow a man whole. ', advantages: ['able drinker', 'sea legs', 'patron'], skills: ['athletics', 'brawl', 'notice', 'sailing', 'weaponry'], restriction: 'uss'},
 			{ name: 'bearsark ', quirk: 'earn a Hero Point when you let the game master choose your character\'s next action. ', advantages: ['hard to kill', 'able drinker'], skills: ['brawl', 'intimidate', 'sailing', 'warfare', 'weaponry'], restriction: 'ves'},
-			{ name: 'guildmästaren ', quirk: 'earn a Hero Point when you use the vast resources of the vendel league for something more noble than proft. ', advantages: ['masterpiece crafter', 'rich'], skills: ['convince', 'empathy', 'ride', 'scholarship', 'tempt'], restriction: 'ves'},
-			{ name: 'sjørøver (pirate) ', quirk: 'earn a Hero Point when put yourself in danger in order to ensure your place of honor at the allfather’s table. ', advantages: ['i\'m taking you with me', 'staredown'], skills: ['brawl', 'intimidate', 'notice', 'sailing', 'weaponry'], restriction: 'ves'},
-			{ name: 'skald ', quirk: 'earn a Hero Point when you use your knowledge as a seidr to help another hero to solve a problem or thwart a villain. ', advantages: ['seidr', 'sea legs'], skills: ['brawl', 'intimidate', 'perform', 'sailing', 'weaponry'], restriction: 'ves'},
-			{ name: 'bravo ', quirk: 'earn a Hero Point when you put yourself in danger to defend the life of the person you’ve sworn to protect. ', advantages: ['poison immunity', 'hard to kill'], skills: ['athletics', 'empathy', 'intimidate', 'notice', 'weaponry'], restriction: 'vod'},
+			{ name: 'guildmästaren ', quirk: 'earn a Hero Point when you use the vast resources of the vendel league for something more noble than proft. ', short: 'earn a Hero Point when you use the resources of the League for something noble.', advantages: ['masterpiece crafter', 'rich'], skills: ['convince', 'empathy', 'ride', 'scholarship', 'tempt'], restriction: 'ves'},
+			{ name: 'sjørøver (pirate) ', quirk: 'earn a Hero Point when put yourself in danger in order to ensure your place of honor at the allfather’s table. ', short: 'earn a Hero Point when put yourself in danger to ensure your otherworldy honor.', advantages: ['i\'m taking you with me', 'staredown'], skills: ['brawl', 'intimidate', 'notice', 'sailing', 'weaponry'], restriction: 'ves'},
+			{ name: 'skald ', quirk: 'earn a Hero Point when you use your knowledge as a seidr to help another hero to solve a problem or thwart a villain.', short: 'earn a Hero Point when you use your knowledge as a seidr to help another hero.', advantages: ['seidr', 'sea legs'], skills: ['brawl', 'intimidate', 'perform', 'sailing', 'weaponry'], restriction: 'ves'},
+			{ name: 'bravo ', quirk: 'earn a Hero Point when you put yourself in danger to defend the life of the person you’ve sworn to protect.', short: 'earn a Hero Point when you endanger yourself to defend whom you’ve sworn to protect.', advantages: ['poison immunity', 'hard to kill'], skills: ['athletics', 'empathy', 'intimidate', 'notice', 'weaponry'], restriction: 'vod'},
 			{ name: 'consigliere ', quirk: 'earn a Hero Point when you take a great risk to protect someone else’s secret. ', advantages: ['we\'re not so different...', 'streetwise'], skills: ['convince', 'empathy', 'notice', 'ride', 'tempt'], restriction: 'vod'},
 			{ name: 'esploratore ', quirk: 'earn a Hero Point when you use non-Théan items or knowledge to solve a problem. ', advantages: ['lyceum', 'linguist'], skills: ['convince', 'empathy', 'intimidate', 'sailing', 'tempt'], restriction: 'vod'},
 			{ name: 'sorte strega', quirk: 'earn a Hero Point when you commit to a dangerous course of action that you believe is destiny. ', advantages: ['sorcery', 'sorcery', 'time sense'], skills: ['convince', 'hide', 'perform', 'ride', 'tempt'], restriction: 'vod'}
@@ -322,6 +323,9 @@ export class CharGenOptions {
 			var _adv: string[] = [];
 			bg.name = bg.name.slice(0,1).toUpperCase() + bg.name.slice(1);
 			bg.quirk = bg.quirk.slice(0,1).toUpperCase() + bg.quirk.slice(1);
+			var _short: string = !_.isUndefined(bg.short) ? bg.short.slice(0,1).toUpperCase() + bg.short.slice(1) : bg.quirk;
+			_short = _short.replace('Hero Point', 'HP');
+			bg.short = _short;
 			_.each(bg.skills, (skill: string) => {
 				_skills.push(skill.slice(0,3));
 			});

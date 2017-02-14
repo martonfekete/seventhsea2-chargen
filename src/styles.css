@@ -168,3 +168,15 @@ md-grid-tile figure {
 .align-center {
 	text-align: center;
 }
+.inline-number {
+	display: inline-block;
+	width: 30px;
+	margin-top: 5px;
+}
+md-slide-toggle.inline {
+	margin: 0 0 0 30px;
+}
+p.inline {
+	margin: 4px 30px 0 0;
+	vertical-align: middle;
+}
