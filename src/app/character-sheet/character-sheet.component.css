@@ -2,13 +2,15 @@
 	font-family: sans-serif;
 }
 .char-box.small {
-	/*max-width: 325px;*/
-	max-width: calc(100% / 4 - 13px);
+	max-width: calc(100% / 4 - 15px);
 }
 .char-box h2 {
 	margin-bottom: 0;
 	text-align: center;
 	font-size: 1.15em;
+}
+.char-box h4 {
+	margin-bottom: 0;
 }
 .rank-name {
 	display: inline-block;
@@ -20,15 +22,6 @@ md-icon:not(.regular) {
 	width: 16px;
 	position: relative;
 	top: 2px;
-}
-.rank-list {
-	margin-top: 0;
-	margin-left:0;
-	padding-left:0;
-	list-style-type: none;
-}
-.rank-list li {
-	padding: 5px 10px; 
 }
 .align {
 	position: relative;

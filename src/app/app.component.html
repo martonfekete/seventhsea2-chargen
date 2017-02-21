@@ -31,8 +31,14 @@
 		</div>
 		<h2>Character information</h2>
 		<div *ngFor="let info of charInfo; let i = index" class="">
-			<md-input-container *ngIf="!info.hidden" class="no-margin">
+			<md-input-container *ngIf="!info.hidden && info.type === 'text'" class="no-margin">
 				<input [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" md-input />
+			</md-input-container>
+			<md-select *ngIf="info.type === 'select'" [(ngModel)]="selectedReligion" placeholder="Select Your Religion">
+				<md-option *ngFor="let religion of religionOptions; let i = index" class="" [value]="religion">{{religion}}</md-option>
+			</md-select>
+			<md-input-container *ngIf="selectedReligion === 'Other' && info.type === 'select'" class="no-margin">
+				<input [(ngModel)]="otherReligion" placeholder="Your Religion" md-input />
 			</md-input-container>
 		</div>
 		<div class="margin-top">
@@ -130,43 +136,34 @@
 	<md-list>
 		<div *ngFor="let adv of filteredAdvantages let i = index" class="">
 			<md-list-item *ngIf="adv.cost <= advCostRestriction">
-				<!--
 				<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
-				-->
-				<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}" *ngIf="adv.name !== 'Sorcery'">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
-				<p style="margin-left:28px" *ngIf="adv.name === 'Sorcery'" [ngClass]="{'text-grey': adv.disabled}">{{adv.name}} - Rank {{sorceryTimes}} ({{adv.cost}} points)
-				<button (click)="decreaseSorcery()" md-button disabled="{{adv.disabled}}">-</button>
-				<button (click)="increaseSorcery()" md-button disabled="{{adv.disabled}}">+</button></p>
 			</md-list-item>
 		</div>
 	</md-list>
 	</div>
 	<div class="char-box inline">
-
-	<h2>Selected Advantages</h2>
-
-	<md-list *ngIf="selectedAdvantages.length > 0">
-		<div *ngFor="let adv of selectedAdvantages let i = index" class="">
-			<!--span *ngIf="adv.name !== 'Sorcery'"-->
-				<md-list-item>
-					{{adv.name}}
-				</md-list-item>
-				<md-list-item class="md-caption">
-					<p>{{adv.description}}</p>
-				</md-list-item>
-			<!--/span-->
+		<div *ngIf="sorceryTimes > 0">
+		<h2>{{getSorceryType()}} (Sorcery)</h2>
+			<app-sorcery-part [nation]="selectedPeople.code" [rank]="sorceryTimes" (rankChanged)="sorceryUpdated($event)" (updated)="sorceryObjectUpdated($event)"></app-sorcery-part>
 		</div>
-	</md-list>
-	<md-card *ngIf="selectedAdvantages.length === 0">You have no advantages yet. It' recommended to select your <span class="text-red pointer" (click)="openTab(0)">Backgrounds</span> first as they provide free advantages.</md-card>
+		<div>
+			<h2>Selected Advantages</h2>
+
+			<md-list *ngIf="selectedAdvantages.length > 0">
+				<div *ngFor="let adv of selectedAdvantages let i = index" class="">
+					<span *ngIf="adv.name !== 'Sorcery'">
+						<md-list-item>
+							{{adv.name}}
+						</md-list-item>
+						<md-list-item class="md-caption">
+							<p>{{adv.description}}</p>
+						</md-list-item>
+					</span>
+				</div>
+			</md-list>
+			<md-card *ngIf="selectedAdvantages.length === 0">{{ sorceryTimes > 0 ? 'You have picked only Sorcery so far.' : 'You have picked no advantages yet.'}} It's recommended to select your <span class="text-red pointer" (click)="openTab(0)">Backgrounds</span> first as they provide free advantages.</md-card>
+		</div>
 	</div>
-	<!--div class="char-box inline" *ngIf="sorceryTimes > 0">
-		<h2>Sorcery</h2>
-		<div *ngFor="let adv of advantageOptions let i = index">
-			<p style="margin-left:28px" *ngIf="adv.name === 'Sorcery'" [ngClass]="{'text-grey': adv.disabled}">{{adv.name}} - Rank {{sorceryTimes}} ({{adv.cost}} points)
-			<button (click)="decreaseSorcery()" md-button disabled="{{adv.disabled}}">-</button>
-			<button (click)="increaseSorcery()" md-button disabled="{{adv.disabled}}">+</button></p>
-		</div>
-	</div-->
 </md-tab>
 	<md-tab label="Arcana and Stories">
 		<div class="char-box small-box inline">
@@ -282,14 +279,24 @@
 	</md-tab>
 	<md-tab label="Additional Details">
 		<div class="char-box small-box inline">
-			<h2>Wealth</h2>
-			<p>Select one of your skills that contributes to your profession and earns your Wealth.</p>
-			<md-select class="select-wide" placeholder="Profession Skill" [ngModel]="skillForWealth" (ngModelChange)="onWealthChange($event)" name="wealth_skill">
-			    <md-option *ngFor="let skill of skillForWealthList" [value]="skill">
-					{{skill.name}} ({{skill.base + skill.value}})
-			    </md-option>
-			</md-select>
-			<p>You start your session with {{charWealth}} Wealth Points.</p>
+			<div>
+				<h2>Wealth</h2>
+				<p>Select one of your skills that contributes to your profession and earns your Wealth.</p>
+				<md-select class="select-wide" placeholder="Profession Skill" [ngModel]="skillForWealth" (ngModelChange)="onWealthChange($event)" name="wealth_skill">
+				    <md-option *ngFor="let skill of skillForWealthList" [value]="skill">
+						{{skill.name}} ({{skill.base + skill.value}})
+				    </md-option>
+				</md-select>
+				<p>You start your session with {{charWealth}} Wealth Points.</p>
+			</div>
+			<div>
+				<h2>Secret Society</h2>
+				<p>If you want to, you may join a Secret Society by selecting one from the list below.</p>
+				<md-select [(ngModel)]="selectedSociety" placeholder="Select Secret Society">
+					<md-option *ngFor="let society of secretSocieties; let i = index" class="" [value]="society">{{society}}</md-option>
+				</md-select>
+				<p *ngIf="selectedSociety">You start your session with 2 Favor Points.</p>
+			</div>
 		</div>
 		<div class="char-box small-box inline">
 			<h2> {{hasShip? '' : 'No'}} Ship</h2>
@@ -297,10 +304,26 @@
 			<div *ngIf="hasShip">
 				<p>You have a ship.</p>
 				<div *ngFor="let info of shipDetails; let i = index" class="">
-					<md-input-container class="no-margin">
+					<md-input-container class="no-margin" *ngIf="info.type !== 'select'">
 						<input [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" md-input />
 					</md-input-container>
+					<md-select [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" *ngIf="info.type === 'select' && info.label !== 'Bonus Background'">
+						<md-option *ngFor="let option of shipData[info.name]" [value]="option.name">{{option.name}}</md-option>
+					</md-select>
+					<md-select [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" *ngIf="info.type === 'select' && info.label === 'Bonus Background' && shipDetails[2].value === 'Sarmatian'">
+						<md-option *ngFor="let option of shipData[info.name]" [value]="option.name">{{option.name}}</md-option>
+					</md-select>
 				</div>
+			</div>
+		<!--/div>
+		<div class="char-box small-box inline"-->
+			<h2> {{isDuelist? '' : 'No'}} Duelist</h2>
+			<p *ngIf="!isDuelist">You are not a Duelist. Pick the 'Duelist Academy' advantage to gain access to Duelist Maneuvers.</p>
+			<div *ngIf="isDuelist">
+				<p>You are a Duelist.</p>
+				<md-select [(ngModel)]="selectedStyle" placeholder="Select your Style">
+					<md-option *ngFor="let style of duelistStyles; let i = index" class="" [value]="style">{{style}}</md-option>
+				</md-select>
 			</div>
 		</div>
 		<div class="char-box small-box inline">
@@ -312,8 +335,8 @@
 					<textarea  md-input placeholder="Describe your Item" [(ngModel)]="itemDesc"></textarea>
 				</md-input-container>
 			</div>
-		</div>
-		<div class="char-box small-box inline">
+		<!--/div>
+		<div class="char-box small-box inline"-->
 			<h2> {{hasCompany? '' : 'No'}} Compainons</h2>
 			<p *ngIf="!hasCompany">You don't have any Followers. Pick the 'Trusted companion' advantage to have a small group or a selected person accompany you.</p>
 			<div *ngIf="hasCompany">

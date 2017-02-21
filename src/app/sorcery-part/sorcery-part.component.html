@@ -1,0 +1,82 @@
+<!--h2>Sorcery: {{sorcery.name}} (Rank {{rank}})</h2-->
+<strong>Sorcery Rank: </strong> {{rank}}<br/>
+	<div class="margin-bottom margin-top">
+		<button (click)="decreaseSorcery()" md-raised-button class="small-button" disabled="{{rank -1 <= 0}}">-</button>
+		<button (click)="increaseSorcery()" md-raised-button class="small-button" disabled="{{!allowed}}">+</button>
+	</div>
+	<hr class="margin-top" />
+
+<p>{{sorcery.todo}}<p>
+<p>{{sorcery.extra}}</p>
+<p>{{sorcery.descA}}</p>
+<p class="margin-bottom">{{sorcery.descB}}</p>
+
+<md-select class="select-wide" *ngIf="sorcery.code === 'gla'" [ngModel]="selectedPatron" (ngModelChange)="onPatronChange($event)" placeholder="Select Knight">
+	<md-option *ngFor="let patron of sorcery.options.knights; let i = index" class="" [value]="patron">{{patron.name}}</md-option>
+</md-select>
+<md-select class="select-wide" *ngIf="sorcery.code === 'san'" [ngModel]="selectedPatron" (ngModelChange)="onPatronChange($event)" placeholder="Select Dievas">
+	<md-option *ngFor="let patron of sorcery.options.dievas; let i = index" class="" [value]="patron">{{patron.name}}</md-option>
+</md-select>
+<br/>
+<ul *ngIf="sorcery.options.major && sorcery.code !== 'san' && sorcery.code !== 'gla'" class="rank-list inline">
+	<strong *ngIf="sorcery.code !== 'mot'">Major {{sorcery.options.gift}}s</strong>
+	<strong *ngIf="sorcery.code === 'mot'">Restrictions</strong>
+	<li *ngFor="let gift of sorcery.options.major" mdTooltip="{{gift.desc}}">
+	<md-checkbox [(ngModel)]="gift.selected" (ngModelChange)="updateSorcery($event, 'major', gift)" disabled="{{gift.disabled}}">{{gift.name}}</md-checkbox>
+	</li>
+</ul>
+<ul *ngIf="sorcery.options.major && sorcery.code === 'gla' && selectedPatron" class="margin-top rank-list inline">
+	<strong>Major {{sorcery.options.gift}}s</strong>
+	<span *ngFor="let gift of sorcery.options.major">
+		<li *ngIf="!gift.unavailable" mdTooltip="{{gift.desc}}">{{gift.name}}
+			<button (click)="decreaseGift('major', gift)" class="margin-left" md-raised-button disabled="{{gift.rank -1 < 0}}">-</button>
+			{{gift.rank}}
+			<button (click)="increaseGift('major', gift)" md-raised-button disabled="{{!allowed || gift.rank === 5 || !selectedPatron}}">+</button>
+		</li>
+	</span>
+</ul>
+
+<ul *ngIf="sorcery.options.minor && sorcery.code !== 'gla' && sorcery.code !== 'san'" class="rank-list inline margin-left">
+	<strong *ngIf="sorcery.code !== 'mot'">Minor {{sorcery.options.gift}}s</strong>
+	<strong *ngIf="sorcery.code === 'mot'">Gits</strong>
+	<li *ngFor="let gift of sorcery.options.minor" mdTooltip="{{gift.desc}}">
+	<md-checkbox [(ngModel)]="gift.selected" (ngModelChange)="updateSorcery($event, 'minor', gift)" disabled="{{gift.disabled}}">{{gift.name}}</md-checkbox>
+	</li>
+</ul>
+<ul *ngIf="sorcery.options.minor && sorcery.code === 'gla' && selectedPatron" class="margin-top rank-list inline">
+	<strong>Minor {{sorcery.options.gift}}s</strong>
+	<span *ngFor="let gift of sorcery.options.minor">
+		<li *ngIf="!gift.unavailable" mdTooltip="{{gift.desc}}">
+		{{gift.name}}
+			<button (click)="decreaseGift('minor', gift)" class="margin-left" md-raised-button disabled="{{gift.rank -1 < 0}}">-</button>
+			{{gift.rank}}
+			<button (click)="increaseGift('minor', gift)" md-raised-button disabled="{{!allowed || gift.rank === 5 || !selectedPatron}}">+</button>
+		</li>
+	</span>
+</ul>
+<ul *ngIf="sorcery.options.minor && sorcery.code === 'san' && selectedPatron" class="margin-top rank-list inline">
+	<strong>Minor {{sorcery.options.gift}}s</strong>
+	<span *ngFor="let gift of sorcery.options.minor">
+		<li *ngIf="!gift.unavailable"mdTooltip="{{gift.desc}}" mdTooltip="{{gift.desc}}">
+			<md-checkbox [(ngModel)]="gift.selected" (ngModelChange)="updateSorcery($event, 'minor', gift)" disabled="{{gift.disabled}}">{{gift.name}}</md-checkbox>
+		</li>
+	</span>
+</ul>
+
+<p class="text-strong">Selected</p>
+{{sorcery.code !== 'mot' ? 'Major ' +  sorcery.options.gift + 's' : 'Restriction'}}:
+	<span *ngFor="let gift of selectedGifts.major; let last = last" class="">{{gift.name}}{{last ? '' : ', '}}</span>
+	<span *ngIf="sorcery.code === 'gla'">
+		<span *ngFor="let gift of sorcery.options.major">
+			<span *ngIf="gift.rank > 0">{{gift.name}} ({{gift.rank}})</span>
+		</span>
+	</span>
+	{{sorcery.code === 'san' ? 'You have to make a deal for each Major Favor with your dievas during the game.' : ''}}
+<br/>
+{{sorcery.code !== 'mot' ? 'Minor '+  sorcery.options.gift + 's' : 'Gift'}}:  {{sorcery.code === 'sor' ? 'Read, ' : ''}}
+	<span *ngFor="let gift of selectedGifts.minor; let last = last" class="">{{gift.name}}{{last ? '' : ', '}}</span>
+	<span *ngIf="sorcery.code === 'gla'">
+		<span *ngFor="let gift of sorcery.options.minor">
+			<span *ngIf="gift.rank > 0">{{gift.name}} ({{gift.rank}})</span>
+		</span>
+	</span>

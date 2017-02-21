@@ -1,6 +1,5 @@
 import { Component, OnInit, OnChanges } from '@angular/core';
 import { CharGenOptions } from './app-usedata';
-import {MdDialog, MdDialogRef} from '@angular/material';
 
 /* interfaces */
 import { CharTraits } from './app-usedata';
@@ -47,7 +46,9 @@ export class AppComponent {
   arcanaOptions: CharArcana[]
 	advantageOptions: CharAdvantages[];
 	points: CharPoints;
+
 	sorceryTimes: number = 0;
+  sorceryToPass: any;
 
   selectedPeople: TheanPeople;
   selectedBackgrounds: CharBackgrounds[] = [];
@@ -69,20 +70,27 @@ export class AppComponent {
   filteredAdvantages: CharAdvantages[];
   
   charInfo: any[];
+  religionOptions: any[];
+  selectedReligion: string;
+  otherReligion: string;
   charWealth: number = 0;
+  skillForWealthList: CharSkills[];
+  skillForWealth: CharSkills;
   hasShip: boolean = false;
   shipDetails: any[];
+  shipData: any;
   hasItem: boolean = false;
   itemDesc: string;
   hasCompany: boolean = false;
   companyDesc: string;
-  skillForWealthList: CharSkills[];
-  skillForWealth: CharSkills;
-
+  isDuelist: boolean = false;
+  duelistStyles: any;
+  selectedStyle: string;
+  secretSocieties: any;
+  selectedSociety: string;
 
 	constructor(
-		private dataService: CharGenOptions,
-    public storyDialog: MdDialog
+		private dataService: CharGenOptions
 	) {
 		this.resetSheet();
     this.dots = [1,1,1,1,1];
@@ -96,13 +104,17 @@ export class AppComponent {
     if (!ignore) {
       this.charInfo = [
         /*{value: '', label: 'Player', name: 'player'},*/
-        {value: '', label: 'Character', name: 'character'},
-        {value: '', label: 'Concept', name: 'concept'},
-        {value: '', label: 'Religion', name: 'religion'},
-        {value: '', label: 'Reputations', name: 'reputations', hidden: true}/*,
+        {value: '', label: 'Character', name: 'character', type: 'text'},
+        {value: '', label: 'Concept', name: 'concept', type: 'text'},
+        {value: '', label: 'Religion', name: 'religion', type: 'select'},
+        {value: '', label: 'Reputations', name: 'reputations', hidden: true, type: 'text'}/*,
         {value: '', label: 'Wealth', name: 'wealth'}*/
       ];
+      this.religionOptions = this.dataService.religion;
+      this.selectedReligion = '';
+      this.otherReligion = '';
       this.points = { traits: 2, national: 1, skills: 10, advantages: 5, backgrounds: 2 };
+      this.dataService.advPoints = this.points.advantages;
       this.traits = _.cloneDeep(this.dataService.traits);
       this.skills = _.cloneDeep(this.dataService.skills);
       this.peopleOptions = _.cloneDeep(this.dataService.people);
@@ -115,6 +127,7 @@ export class AppComponent {
       this.advQuery = '';
       this.showAllAdv = true;
       this.selectedPeople = this.peopleOptions[0];
+      this._restrictSorcery(this.selectedPeople.code);
       this._selectFavoredTraits(this.selectedPeople.favor);
       this._updateBackgroundList(this.selectedPeople.code);
       this.selectedBackgrounds = [
@@ -130,12 +143,19 @@ export class AppComponent {
       this.itemDesc = '';
       this.hasCompany = false;
       this.companyDesc = '';
+      this.isDuelist = false;
+      this.duelistStyles = this.dataService.duelistStyles;
+      this.selectedStyle = '';
+      this.secretSocieties = this.dataService.secretSocieties;
+      this.selectedSociety = '';
       this.shipDetails = [
         {value: '', label: 'Name', name: 'ship_name', type: 'text'},
         {value: '', label: 'Class', name: 'ship_class', type: 'select'},
         {value: '', label: 'Origin', name: 'ship_origin', type: 'select'},
-        {value: '', label: 'Background', name: 'ship_bg', type: 'select'}
+        {value: '', label: 'Background', name: 'ship_bg', type: 'select'},
+        {value: '', label: 'Bonus Background', name: 'ship_bg', type: 'select'}
       ];
+      this.shipData = this.dataService.shipDetails;
       this.skillForWealth = undefined;
       this._setupBaseSkills();
       this._updateAdvantageList('init');
@@ -261,13 +281,14 @@ export class AppComponent {
     } else {
       cost = adv.cost;
     }
-    /*
+
+    // sorcery
     if (adv.name === 'Sorcery' && event) {
       this.increaseSorcery();
     } else if (!event) {
       this.decreaseSorcery();
     }
-    */
+
     if (!this.freeForm && adv.name !== 'Sorcery' && event) {
       this.points.advantages -= cost;
       this._updateSelectedAdvantages(adv, 'add');
@@ -286,7 +307,17 @@ export class AppComponent {
     if (this.freeForm && !event) {
       this._updateSelectedAdvantages(adv, 'remove');
     }
+    this.dataService.advPoints = this.points.advantages;
 	}
+
+  sorceryUpdated(event): void {
+    this.points.advantages = event;
+    this._updateAdvantageList('restrict');
+  }
+
+  sorceryObjectUpdated(event): void {
+    this.sorceryToPass = event;
+  }
 
   randomArcana(): void {
     for (var i = 0; i < 2; i++) {
@@ -391,15 +422,14 @@ export class AppComponent {
 			_.each(this.selectedBackgrounds, (bg: CharBackgrounds) => {
 				if (bg.quirk !== '---') {
   				_.each(bg.advantages, (adv: string) => {
-					var _index = _.findIndex(this.advantageOptions, {name: adv});
-					this.selectedAdvantages.push(this.advantageOptions[_index]);
-					this.advantageOptions[_index].received = true;
-					if (adv !== 'Sorcery') {
-						this.advantageOptions[_index].selected = true;
-						this.advantageOptions[_index].disabled = true;
-					} else {
-						this.sorceryTimes = 2;
-					}
+  					var _index = _.findIndex(this.advantageOptions, {name: adv});
+  					this.selectedAdvantages.push(this.advantageOptions[_index]);
+  					this.advantageOptions[_index].received = true;
+            this.advantageOptions[_index].selected = true;
+            this.advantageOptions[_index].disabled = true;
+  					if (adv === 'Sorcery') {
+  						this.sorceryTimes = 2;
+  					}
   				});
 				}
 			});
@@ -444,7 +474,7 @@ export class AppComponent {
 
   private _restrictSorcery(code: string): void {
       var sorcIndex = _.findIndex(this.advantageOptions, {name: 'Sorcery'});
-      if (code === 'cas' || code === 'ves') {
+      if (code === 'null' || code === 'cas' || code === 'ves') {
         this.advantageOptions[sorcIndex].disabled = true;
       } else {
         this.advantageOptions[sorcIndex].disabled = false;
@@ -475,7 +505,7 @@ export class AppComponent {
 	}
 
 	private _updateSelectedAdvantages(adv: CharAdvantages = null, action: string = ''): void {
-		if (action === 'add') {
+		if (action === 'add' && adv.name !== 'Sorcery') {
 			this.selectedAdvantages.push(adv);
 		}
 		if (action === 'remove') {
@@ -483,30 +513,6 @@ export class AppComponent {
 			this.selectedAdvantages.splice(_index,1);
 		}
 
-    // sorcery
-		var _sorcIndex;
-		if (this.selectedAdvantages.length > 0) {
-		_sorcIndex = _.findIndex(this.selectedAdvantages, (item: any) => {
-				return item.name.split('(')[0] === 'Sorcery ';
-			});
-		} else {
-			_sorcIndex = -1;
-		}
-		if (this.sorceryTimes > 0) {
-  		if (_sorcIndex === -1) {
-  			this.selectedAdvantages.push({
-  				name: 'Sorcery (' + this._getSorceryType() + ') (Rank ' + this.sorceryTimes + ')',
-  				cost: 2
-  			});
-  		} else {
-  			this.selectedAdvantages[_sorcIndex] = {
-  				name: 'Sorcery (' + this._getSorceryType() + ') (Rank ' + this.sorceryTimes + ')',
-  				cost: 2
-  			};
-  		}
-		} else if (this.sorceryTimes === 0 && _sorcIndex > -1) {
-			this.selectedAdvantages.splice(_sorcIndex, 1);
-		}
     // reputation
     var repuIndex: number = _.findIndex(this.selectedAdvantages, {name: 'Reputation'});
     if (repuIndex > -1) {
@@ -539,12 +545,20 @@ export class AppComponent {
       this.hasCompany = false;
     }
 
+    // duelist
+    var duelistIndex: number = _.findIndex(this.selectedAdvantages, {name: 'Duelist academy'});
+    if (duelistIndex > -1) {
+      this.isDuelist = true;
+    } else {
+      this.isDuelist = false;
+    }
+
     this.calculateWealth();
 
     this.selectedAdvantages = _.orderBy(this.selectedAdvantages, ['name']);
 	}
 
-	private _getSorceryType(): string {
+	getSorceryType(): string {
 		var _type = 'Knights of Avalon';
 		if (this.selectedPeople.code !== 'null') {
 			switch (this.selectedPeople.code) {
@@ -564,7 +578,7 @@ export class AppComponent {
 					_type = 'Sorte';
 					break;
 				default:
-					 _type = 'Glamour';
+					 _type = 'Knights of Avalon';
 					break;
 			}
 		}
@@ -645,20 +659,29 @@ export class AppComponent {
   }
 
   passCharacter(): any {
+    var _charInfo = _.cloneDeep(this.charInfo);
+    if (this.selectedReligion === 'Other') {
+      _charInfo[2].value = this.otherReligion;
+    } else {
+      _charInfo[2].value = this.selectedReligion;
+    }
     return {
-      info: this.charInfo,
+      info: _charInfo,
       nation: this.selectedPeople.name,
       traits: this.traits,
       backgrounds: this.selectedBackgrounds,
       skills: this.skills,
       arcana: this.selectedArcana,
       advantages: this.selectedAdvantages,
+      sorcery: this.sorceryToPass,
       stories: this.stories,
       extras: {
         wealth: this.charWealth,
         ship: this.shipDetails,
         item: this.itemDesc,
-        company: this.companyDesc
+        company: this.companyDesc,
+        duelist: this.selectedStyle,
+        society: this.selectedSociety
       }
     };
   }

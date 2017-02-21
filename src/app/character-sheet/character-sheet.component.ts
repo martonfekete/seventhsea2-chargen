@@ -55,6 +55,11 @@ export class CharacterSheetComponent implements OnInit {
 		this.finalData.info.push({
 			name: 'Wealth', value: data.extras.wealth
 		});
+		if (data.extras.society) {
+			this.finalData.info.push({
+				name: 'Secret Society', value: data.extras.society
+			});
+		}
 		/*_.each(data.info, (field: any) => {
 			this.finalData.info[field.label] = field.value
 		});
@@ -92,10 +97,17 @@ export class CharacterSheetComponent implements OnInit {
 			});
 		});
 		_.each(data.advantages, (field: any) => {
-			this.finalData.advantages.push({
-				name: field.name, desc: field.short
-			});
+			if (field.name !== 'Sorcery') {
+				this.finalData.advantages.push({
+					name: field.name, desc: field.short
+				});
+			}
 		});
+		if (data.extras.duelist) {
+			var _duelIndex = _.findIndex(this.finalData.advantages, {name: 'Duelist academy'});
+			this.finalData.advantages[_duelIndex].short = 'You are an initiate of the ' + data.extras.duelist + ' Duelist Style';
+		}
+		
 		_.each(data.arcana, (field: any, index: number) => {
 			if (index > 0) {
 				this.finalData.arcana.push({
@@ -110,10 +122,19 @@ export class CharacterSheetComponent implements OnInit {
 		});
 		this.finalData.stories = data.stories;
 		_.each(data.extras.ship, (field: any) => {
-			this.finalData.ship[field.name] = field.value;
+			if (field.name === 'ship_bg') {
+				if (_.isUndefined(this.finalData.ship[field.name])) {
+					this.finalData.ship[field.name] = field.value;	
+				} else {
+					this.finalData.ship.ship_bg_extra = field.value;
+				}
+			} else {
+				this.finalData.ship[field.name] = field.value;
+			}
 		});
 		this.finalData.misc.item = data.extras.item;
 		this.finalData.misc.comp = data.extras.company;
+		this.finalData.sorcery = data.sorcery;
 	}
 
 	save(): void {

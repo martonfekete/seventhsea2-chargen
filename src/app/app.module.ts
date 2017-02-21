@@ -10,11 +10,13 @@ import * as _ from 'lodash';
 
 import { CharGenOptions } from './app-usedata';
 import { CharacterSheetComponent } from './character-sheet/character-sheet.component';
+import { SorceryPartComponent } from './sorcery-part/sorcery-part.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CharacterSheetComponent
+    CharacterSheetComponent,
+    SorceryPartComponent
   ],
   imports: [
     BrowserModule,

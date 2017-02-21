@@ -81,7 +81,8 @@
 			<ul class="rank-list">
 			<li> <span class="rank-name">Class</span><span class="sep">{{finalData.ship.ship_class}}</span> </li>
 			<li> <span class="rank-name">Origin</span><span class="sep">{{finalData.ship.ship_origin}}</span> </li>
-			<li> <span class="rank-name">Background</span><span class="sep">{{finalData.ship.ship_bg}}</span> </li>
+			<li *ngIf="!finalData.ship.ship_bg_extra"> <span class="rank-name">Background</span><span class="sep">{{finalData.ship.ship_bg}}</span> </li>
+			<li *ngIf="finalData.ship.ship_bg_extra"> <span class="rank-name">Backgrounds</span><br /><span class="sep">{{finalData.ship.ship_bg}}, {{finalData.ship.ship_bg_extra}}</span> </li>
 			</ul>
 		</div>
 
@@ -102,17 +103,20 @@
 		<p>{{adv.name}}</p>
 		<p class="md-caption">{{adv.desc}}</p>
 	</div>
-	<!--h2>Wounds</h2>
-	<div *ngFor="let line of lines; let i = index" class="with-explanation">
-		<span *ngFor="let dot of dots; let i = index" class="">
-			<md-icon *ngIf="i < 4">panorama_fish_eye</md-icon>
-			<md-icon *ngIf="i === 4" class="dramatic-icon">star_border</md-icon>
-		</span>
-		<span class="sep" *ngIf="i === 0">+1 Die to all Risks</span>
-		<span class="sep" *ngIf="i === 1">+Villains gain +2 Dice</span>
-		<span class="sep" *ngIf="i === 2">10s explode Risks</span>
-		<span class="sep" *ngIf="i === 3">You're Helpless</span>
-	</div-->
+	<div *ngIf="finalData.sorcery">
+		<h2>Sorcery: {{finalData.sorcery.name}}</h2>
+		<p *ngIf="finalData.sorcery.patron"><strong>Patron:</strong> {{finalData.sorcery.patron}}</p>
+		<h4 *ngIf="finalData.sorcery.major.length > 0">Major Gifts</h4>
+		<div *ngFor="let gift of finalData.sorcery.major; let i = index" class="char-box-block">
+			<p>{{gift.name}}</p>
+			<p class="md-caption">{{gift.desc}}</p>
+		</div>
+		<h4 *ngIf="finalData.sorcery.minor.length > 0">Minor Gifts</h4>
+		<div *ngFor="let gift of finalData.sorcery.minor; let i = index" class="char-box-block">
+			<p>{{gift.name}}</p>
+			<p class="md-caption">{{gift.desc}}</p>
+		</div>
+	</div>
 </div>
 <div style="width:100%;display: block;text-align: center; border-top: thin solid firebrick">
 	<table class="wounds-table">
