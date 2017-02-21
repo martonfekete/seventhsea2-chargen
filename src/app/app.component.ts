@@ -52,6 +52,7 @@ export class AppComponent {
 
   selectedPeople: TheanPeople;
   selectedBackgrounds: CharBackgrounds[] = [];
+  showNationalBgOnly: any;
   selectedArcana: CharArcana[] = [];
   selectedAdvantages: CharAdvantages[] = [];
 
@@ -134,6 +135,10 @@ export class AppComponent {
         this.backgroundOptions[0],
         this.backgroundOptions[0]
       ];
+      this.showNationalBgOnly = {
+        first: false,
+        second: false
+      }
       this.selectedArcana = [
         this.arcanaOptions[0],
         this.arcanaOptions[0]
@@ -327,6 +332,7 @@ export class AppComponent {
   }
 
   randomBackground(): void {
+    this.showNationalBgOnly = { first: false, second: false };
     var sel: number;
     for (var i = 0; i < 2; i++) {
       var _i = Math.round(Math.random() * 19 + 1);

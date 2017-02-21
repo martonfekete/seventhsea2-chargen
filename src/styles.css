@@ -192,3 +192,8 @@ p.inline {
 .rank-list li {
 	padding: 5px 10px; 
 }
+.inline-check {
+	position: relative;
+	top:20px;
+	margin: 0 2em 0 1em; 
+}

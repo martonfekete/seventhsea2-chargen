@@ -23,7 +23,7 @@
 			<h2>Nationality</h2>
 			<form>
 				<md-select placeholder="Select Nationality" [ngModel]="selectedPeople" (ngModelChange)="onPeopleChange($event)" name="people">
-				    <md-option *ngFor="let people of peopleOptions" [value]="people">
+				    <md-option *ngFor="let people of peopleOptions" [value]="people" disabled="{{people.code === 'null'}}">
 						{{people.name}}
 				    </md-option>
 				</md-select>
@@ -48,32 +48,59 @@
 	</div>
 
 	<div class="char-box inline">
-	<h2>Backgrounds</h2>
-	<form>
-		<md-select placeholder="Select fist background" [ngModel]="selectedBackgrounds[0]" (ngModelChange)="onBackgroundChange($event, 0)" name="background_1">
-		    <md-option *ngFor="let bg of backgroundOptions" [value]="bg">
-				{{bg.name}}
-		    </md-option>
-		</md-select>
-		<md-select placeholder="Select second background" [ngModel]="selectedBackgrounds[1]" (ngModelChange)="onBackgroundChange($event, 1)" name="background_2">
-		    <md-option *ngFor="let bg of backgroundOptions" [value]="bg" disabled="{{bg.name === selectedBackgrounds[0].name && bg.quirk !== '---'}}">
-				{{bg.name}}
-		    </md-option>
-		</md-select>
+		<h2>Backgrounds</h2>
+		<p class="md-caption">
+			To limit the options to only national backgrounds, check the box next to the select field.
+		</p>
+		<form class="inline" name="form2">
+			<md-select placeholder="Select fist background" [ngModel]="selectedBackgrounds[0]" (ngModelChange)="onBackgroundChange($event, 0)" name="background_1">
+			    <span *ngIf="!showNationalBgOnly.first">
+				    <md-option *ngFor="let bg of backgroundOptions" [value]="bg" disabled="{{bg.name === selectedBackgrounds[1].name || bg.quirk === '---'}}">
+						{{bg.name}}
+				    </md-option>
+			    </span>
+			    <span *ngIf="showNationalBgOnly.first">
+			    	<span *ngFor="let bg of backgroundOptions">
+				    	<md-option [value]="bg" *ngIf="(bg.restriction === selectedPeople.code) || (bg.restriction === 'gla' && (selectedPeople.code === 'ava' || selectedPeople.code === 'ini' || selectedPeople.code === 'hig'))" disabled="{{bg.name === selectedBackgrounds[1].name || bg.quirk === '---'}}">
+							{{bg.name}}
+					    </md-option>
+				    </span>
+			    </span>
+			</md-select>
+		</form>
+		<md-checkbox class="inline-check" [(ngModel)]="showNationalBgOnly.first" name="first" disabled="{{selectedPeople.code === 'null'}}">national</md-checkbox>
+
+		<form class="inline" name="form2">
+			<md-select placeholder="Select second background" [ngModel]="selectedBackgrounds[1]" (ngModelChange)="onBackgroundChange($event, 1)" name="background_2">
+			    <span *ngIf="!showNationalBgOnly.second">
+				    <md-option *ngFor="let bg of backgroundOptions" [value]="bg" disabled="{{bg.name === selectedBackgrounds[0].name || bg.quirk === '---'}}">
+						{{bg.name}}
+				    </md-option>
+			    </span>
+			    <span *ngIf="showNationalBgOnly.second">
+			    	<span *ngFor="let bg of backgroundOptions">
+				    	<md-option [value]="bg" *ngIf="(bg.restriction === selectedPeople.code) || (bg.restriction === 'gla' && (selectedPeople.code === 'ava' || selectedPeople.code === 'ini' || selectedPeople.code === 'hig'))" disabled="{{bg.name === selectedBackgrounds[0].name || bg.quirk === '---'}}">
+							{{bg.name}}
+					    </md-option>
+				    </span>
+			    </span>
+			</md-select>
+		</form>
+		<md-checkbox class="inline-check" [(ngModel)]="showNationalBgOnly.second" name="second" disabled="{{selectedPeople.code === 'null'}}">national</md-checkbox>
+
 		<div class="margin-top">
 			<button md-raised-button (click)="randomBackground()" class="margin-left">Randomize</button> 
 		</div>
-	</form>
-	<md-list>
-		<div *ngFor="let bg of selectedBackgrounds">
-			<md-list-item *ngIf="bg.name !== 'None selected'">
-				{{bg.name}}
-			</md-list-item>
-			<md-list-item class="md-caption" *ngIf="bg.quirk !== '---'">
-				<p>{{bg.quirk}}</p>
-			</md-list-item>
-		</div>
-	</md-list>
+		<md-list>
+			<div *ngFor="let bg of selectedBackgrounds">
+				<md-list-item *ngIf="bg.name !== 'None selected'">
+					{{bg.name}}
+				</md-list-item>
+				<md-list-item class="md-caption" *ngIf="bg.quirk !== '---'">
+					<p>{{bg.quirk}}</p>
+				</md-list-item>
+			</div>
+		</md-list>
 	</div>
 </md-tab>
 <md-tab label="Traits and Skills">
