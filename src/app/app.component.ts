@@ -71,9 +71,12 @@ export class AppComponent {
   filteredAdvantages: CharAdvantages[];
   
   charInfo: any[];
-  religionOptions: any[];
+  religionOptions: string[];
   selectedReligion: string;
   otherReligion: string;
+  languageOptions: any[] = [];
+  selectedLanguages: string[];
+  hasLinguist: boolean = false;
   charWealth: number = 0;
   skillForWealthList: CharSkills[];
   skillForWealth: CharSkills;
@@ -143,6 +146,11 @@ export class AppComponent {
         this.arcanaOptions[0],
         this.arcanaOptions[0]
       ];
+      this.hasLinguist = false;
+      _.each(this.dataService.languages, (lang: string) => {
+        this.languageOptions.push({name: lang, selected: false});
+      });
+      this.selectedLanguages = [];
       this.hasShip = false;
       this.hasItem = false;
       this.itemDesc = '';
@@ -261,6 +269,7 @@ export class AppComponent {
 		this._selectFavoredTraits(this.selectedPeople.favor);
 		this._updateBackgroundList(this.selectedPeople.code);
     this._updateAdvantageList('restrict');
+    this._setupLanguages(false, this.selectedPeople.name);
 	}
 
 	onBackgroundChange(event, index): void {
@@ -314,6 +323,14 @@ export class AppComponent {
     }
     this.dataService.advPoints = this.points.advantages;
 	}
+
+  onLanguageUpdate(event, lang: any): void {
+    if (event) {
+      this.selectedLanguages.push(lang);
+    } else {
+      _.remove(this.selectedLanguages, {name: lang.name});
+    }
+  }
 
   sorceryUpdated(event): void {
     this.points.advantages = event;
@@ -559,10 +576,44 @@ export class AppComponent {
       this.isDuelist = false;
     }
 
+    // linguist
+    var langIndex: number = _.findIndex(this.selectedAdvantages, {name: 'Linguist'});
+    if (langIndex > -1) {
+      this.hasLinguist = true;
+      this._setupLanguages(true);
+    } else {
+      this.hasLinguist = false;
+      this._setupLanguages(false, this.selectedPeople.name);
+    }
+
     this.calculateWealth();
 
     this.selectedAdvantages = _.orderBy(this.selectedAdvantages, ['name']);
 	}
+
+  private _setupLanguages(all: boolean, nation: string = null): void {
+    if (all) {
+      _.each(this.languageOptions, (lang: any) => {
+        lang.selected = true;
+      });
+      this.selectedLanguages = this.languageOptions;
+    } else {
+      this.selectedLanguages = [];
+      _.each(this.languageOptions, (lang: any) => {
+        lang.selected = false;
+      });
+      _.each(this.languageOptions, (lang: any) => {
+        if (lang.name === 'Old Théan') {
+          lang.selected = true;
+          this.selectedLanguages.push(lang);
+        }
+        if (lang.name === nation || lang.name === 'Avalon' && (nation === 'Inish' || nation === 'Highlander')) {
+          lang.selected = true;
+          this.selectedLanguages.push(lang); 
+        }
+      });
+    }
+  }
 
 	getSorceryType(): string {
 		var _type = 'Knights of Avalon';
@@ -687,7 +738,8 @@ export class AppComponent {
         item: this.itemDesc,
         company: this.companyDesc,
         duelist: this.selectedStyle,
-        society: this.selectedSociety
+        society: this.selectedSociety,
+        languages: this.selectedLanguages
       }
     };
   }

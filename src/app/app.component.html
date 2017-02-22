@@ -1,6 +1,6 @@
 <md-grid-list cols="6" rowHeight="36px" *ngIf="!showCharSheet">
 	<md-grid-tile colspan="5" rowspan="3">
-		<h1>
+		<h1 class="padding">
 			{{title}}
 		</h1>
 	</md-grid-tile>
@@ -144,29 +144,38 @@
 </md-tab>
 <md-tab label="Advantages and Sorcery">
 	<div class="char-box inline-multi">
-	<h2>All Advantages</h2>
+		<h2>All Advantages</h2>
 
-	<p [ngClass]="{'text-grey': freeForm}" class="inline"><strong>Advantage points remaining: {{freeForm ? '--' : points.advantages}}</strong></p>
-	<md-slide-toggle color="primary" [(ngModel)]="showAllAdv" (ngModelChange)="filterAdvantages('reset')" class="inline">Show All Advantages</md-slide-toggle>
-	<div *ngIf="!showAllAdv">
-		<div>Show advantages that cost at most
-			<md-input-container class="inline-number">
-				<input type="number" md-input [(ngModel)]="advCostRestriction" step="1" min="1" max="5" />
-			</md-input-container> points.
+		<p [ngClass]="{'text-grey': freeForm}" class="inline margin-bottom"><strong>Advantage points remaining: {{freeForm ? '--' : points.advantages}}</strong></p>
+		<md-slide-toggle color="primary" [(ngModel)]="showAllAdv" (ngModelChange)="filterAdvantages('reset')" class="inline">Show All Advantages</md-slide-toggle>
+		<div *ngIf="!showAllAdv">
+			<div>Show advantages that cost at most
+				<md-input-container class="inline-number">
+					<input type="number" md-input [(ngModel)]="advCostRestriction" step="1" min="1" max="5" />
+				</md-input-container> points.
+			</div>
+			<div>
+				<md-input-container style="margin-top: 0;">
+					<input type="text" placeholder="Type part of advantages to narrow the list." md-input [(ngModel)]="advQuery" (ngModelChange)="filterAdvantages()" />
+				</md-input-container>
+			</div>
 		</div>
-		<div>
-			<md-input-container style="margin-top: 0;">
-				<input type="text" placeholder="Type part of advantages to narrow the list." md-input [(ngModel)]="advQuery" (ngModelChange)="filterAdvantages()" />
-			</md-input-container>
+		<div class="margin-top">
+			<ul class="rank-list inline">
+				<div *ngFor="let adv of filteredAdvantages let i = index" class="">
+					<li *ngIf="adv.cost <= advCostRestriction && i % 2 === 0">
+						<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}" mdTooltip="{{adv.short}}" [mdTooltipPosition]="'right'">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
+					</li>
+				</div>
+			</ul>
+			<ul class="rank-list inline margin-left">
+				<div *ngFor="let adv of filteredAdvantages let i = index" class="">
+					<li *ngIf="adv.cost <= advCostRestriction && i % 2 === 1">
+						<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}" mdTooltip="{{adv.short}}" [mdTooltipPosition]="'right'">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
+					</li>
+				</div>
+			</ul>
 		</div>
-	</div>
-	<md-list>
-		<div *ngFor="let adv of filteredAdvantages let i = index" class="">
-			<md-list-item *ngIf="adv.cost <= advCostRestriction">
-				<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
-			</md-list-item>
-		</div>
-	</md-list>
 	</div>
 	<div class="char-box inline">
 		<div *ngIf="sorceryTimes > 0">
@@ -324,53 +333,77 @@
 				</md-select>
 				<p *ngIf="selectedSociety">You start your session with 2 Favor Points.</p>
 			</div>
-		</div>
-		<div class="char-box small-box inline">
-			<h2> {{hasShip? '' : 'No'}} Ship</h2>
-			<p *ngIf="!hasShip">You don't have a ship. Pick the 'Married to the sea' advantage to gain access to your own ship.</p>
-			<div *ngIf="hasShip">
-				<p>You have a ship.</p>
-				<div *ngFor="let info of shipDetails; let i = index" class="">
-					<md-input-container class="no-margin" *ngIf="info.type !== 'select'">
-						<input [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" md-input />
-					</md-input-container>
-					<md-select [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" *ngIf="info.type === 'select' && info.label !== 'Bonus Background'">
-						<md-option *ngFor="let option of shipData[info.name]" [value]="option.name">{{option.name}}</md-option>
-					</md-select>
-					<md-select [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" *ngIf="info.type === 'select' && info.label === 'Bonus Background' && shipDetails[2].value === 'Sarmatian'">
-						<md-option *ngFor="let option of shipData[info.name]" [value]="option.name">{{option.name}}</md-option>
+			<div>
+				<h2> {{isDuelist? '' : 'No'}} Duelist</h2>
+				<p *ngIf="!isDuelist">You are not a Duelist. Pick the 'Duelist Academy' advantage to gain access to Duelist Maneuvers.</p>
+				<div *ngIf="isDuelist">
+					<p>You are a Duelist.</p>
+					<md-select [(ngModel)]="selectedStyle" placeholder="Select your Style">
+						<md-option *ngFor="let style of duelistStyles; let i = index" class="" [value]="style">{{style}}</md-option>
 					</md-select>
 				</div>
 			</div>
-		<!--/div>
-		<div class="char-box small-box inline"-->
-			<h2> {{isDuelist? '' : 'No'}} Duelist</h2>
-			<p *ngIf="!isDuelist">You are not a Duelist. Pick the 'Duelist Academy' advantage to gain access to Duelist Maneuvers.</p>
-			<div *ngIf="isDuelist">
-				<p>You are a Duelist.</p>
-				<md-select [(ngModel)]="selectedStyle" placeholder="Select your Style">
-					<md-option *ngFor="let style of duelistStyles; let i = index" class="" [value]="style">{{style}}</md-option>
-				</md-select>
+		</div>
+		<div class="char-box small-box inline">
+			<div>
+				<h2>Known Languages</h2>
+				<p *ngIf="traits[3].value - selectedLanguages.length > 0 && !hasLinguist">You may select {{traits[3].value - selectedLanguages.length}} more languages you know.</p>
+				<p *ngIf="traits[3].value - selectedLanguages.length === 0 && !hasLinguist">You have no more languages to select:</p>
+				<ul *ngIf="!hasLinguist" class="rank-list inline">
+					<span *ngFor="let lang of languageOptions; let i = index" class="">
+					<li *ngIf="i < languageOptions.length / 2">
+						<md-checkbox [ngModel]="lang.selected" (ngModelChange)="onLanguageUpdate($event, lang)">{{lang.name}}</md-checkbox>
+					</li>
+					</span>
+				</ul>
+				<ul *ngIf="!hasLinguist" class="rank-list inline margin-left">
+					<span *ngFor="let lang of languageOptions; let i = index" class="">
+					<li *ngIf="i >= languageOptions.length / 2">
+						<md-checkbox [ngModel]="lang.selected" (ngModelChange)="onLanguageUpdate($event, lang)">{{lang.name}}</md-checkbox>
+					</li>
+					</span>
+				</ul>
+				<p *ngIf="hasLinguist">As a <i>Linguist</i>, you know every known and dead Théan language.</p>
 			</div>
 		</div>
 		<div class="char-box small-box inline">
-			<h2> {{hasItem? '' : 'No'}} Signature item</h2>
-			<p *ngIf="!hasItem">You don't have a signature item. Pick the 'Signature item' advantage to have your own signature item.</p>
-			<div *ngIf="hasItem">
-				<p>You have a signature item.</p>
-				<md-input-container>
-					<textarea  md-input placeholder="Describe your Item" [(ngModel)]="itemDesc"></textarea>
-				</md-input-container>
+			<div>
+				<h2> {{hasShip? '' : 'No'}} Ship</h2>
+				<p *ngIf="!hasShip">You don't have a ship. Pick the 'Married to the sea' advantage to gain access to your own ship.</p>
+				<div *ngIf="hasShip">
+					<p>You have a ship.</p>
+					<div *ngFor="let info of shipDetails; let i = index" class="">
+						<md-input-container class="no-margin" *ngIf="info.type !== 'select'">
+							<input [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" md-input />
+						</md-input-container>
+						<md-select [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" *ngIf="info.type === 'select' && info.label !== 'Bonus Background'">
+							<md-option *ngFor="let option of shipData[info.name]" [value]="option.name">{{option.name}}</md-option>
+						</md-select>
+						<md-select [(ngModel)]="info.value" placeholder="{{info.label}}" name="info.name" *ngIf="info.type === 'select' && info.label === 'Bonus Background' && shipDetails[2].value === 'Sarmatian'">
+							<md-option *ngFor="let option of shipData[info.name]" [value]="option.name">{{option.name}}</md-option>
+						</md-select>
+					</div>
+				</div>
 			</div>
-		<!--/div>
-		<div class="char-box small-box inline"-->
-			<h2> {{hasCompany? '' : 'No'}} Compainons</h2>
-			<p *ngIf="!hasCompany">You don't have any Followers. Pick the 'Trusted companion' advantage to have a small group or a selected person accompany you.</p>
-			<div *ngIf="hasCompany">
-				<p>You've got company.</p>
-				<md-input-container>
-					<textarea md-input placeholder="Describe your companion(s)" [(ngModel)]="companyDesc"></textarea>
-				</md-input-container>
+			<div>
+				<h2> {{hasItem? '' : 'No'}} Signature item</h2>
+				<p *ngIf="!hasItem">You don't have a signature item. Pick the 'Signature item' advantage to have your own signature item.</p>
+				<div *ngIf="hasItem">
+					<p>You have a signature item.</p>
+					<md-input-container>
+						<textarea  md-input placeholder="Describe your Item" [(ngModel)]="itemDesc"></textarea>
+					</md-input-container>
+				</div>
+			</div>
+			<div>
+				<h2> {{hasCompany? '' : 'No'}} Compainons</h2>
+				<p *ngIf="!hasCompany">You don't have any Followers. Pick the 'Trusted companion' advantage to have a small group or a selected person accompany you.</p>
+				<div *ngIf="hasCompany">
+					<p>You've got company.</p>
+					<md-input-container>
+						<textarea md-input placeholder="Describe your companion(s)" [(ngModel)]="companyDesc"></textarea>
+					</md-input-container>
+				</div>
 			</div>
 		</div>
 	</md-tab>

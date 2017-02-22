@@ -71,9 +71,10 @@ export class CharGenOptions {
 	sorceries: any;
 
 	shipDetails: any;
-	duelistStyles: any[];
-	secretSocieties: any[];
-	religion: any[];
+	duelistStyles: string[];
+	secretSocieties: string[];
+	religion: string[];
+	languages: string[];
 
 	advPoints: number;
 	freeForm: boolean;
@@ -429,6 +430,7 @@ export class CharGenOptions {
 		this.duelistStyles = ['Aldana', 'Ambrogia', 'Boucher', 'Donovan', 'Drexel', 'Eisenfaust', 'Leegstra', 'Mantovani', 'Mireli', 'Sabat', 'Torres', 'Valroux'];
 		this.secretSocieties = ['The Brotherhood of the Coast', 'Die Kreuzritter', 'The Explorer\'s Society', 'The Invisible College', 'Knights of the Rose & Cross', 'Los Vagabundos', 'Močiutės Skara', 'Rilasciare', 'Sophia\'s Daughters'];
 		this.religion = ['Not Religious', 'Vaticine Church', 'Objectionism', 'Church of Avalon', 'Ussuran Orthodox Church', 'Regional Paganism', 'Other'];
+		this.languages = ['Avalon', 'Castillian', 'Cymru', 'Eisen', 'High Eisen', 'Montaigne', 'Old Théan', 'Sarmatian', 'Teodoran', 'Ussuran', 'Vendel', 'Vodacce'];
 	}
 
 /*

@@ -60,6 +60,23 @@ export class CharacterSheetComponent implements OnInit {
 				name: 'Secret Society', value: data.extras.society
 			});
 		}
+		if (data.extras.languages) {
+			var _lang: string = '';
+			var isLing = _.findIndex(data.advantages, {name: 'Linguist'});
+			if (isLing === -1) {
+				_.each(data.extras.languages, (lang: any, index: number) => {
+					_lang += lang.name;
+					if (index !== data.extras.languages.length - 1) {
+						_lang += ', ';
+					}
+				});
+			} else {
+				_lang = 'All of them';
+			}
+			this.finalData.info.push({
+				name: 'Languages', value: _lang
+			});
+		}
 		/*_.each(data.info, (field: any) => {
 			this.finalData.info[field.label] = field.value
 		});
