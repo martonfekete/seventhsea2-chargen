@@ -148,7 +148,7 @@ export class AppComponent {
       ];
       this.hasLinguist = false;
       _.each(this.dataService.languages, (lang: string) => {
-        this.languageOptions.push({name: lang, selected: false});
+        this.languageOptions.push({name: lang, selected: false, disabled: false});
       });
       this.selectedLanguages = [];
       this.hasShip = false;
@@ -215,6 +215,7 @@ export class AppComponent {
       if (this.freeForm) {
         this.traits[index].value = val;
       }
+      this._setupLanguages(false,this.selectedPeople.name);
     } else if (type === 'skills') {
       var _min = this.skills[index].base;
       increase = val - (this.skills[index].value + this.skills[index].base);
@@ -327,8 +328,10 @@ export class AppComponent {
   onLanguageUpdate(event, lang: any): void {
     if (event) {
       this.selectedLanguages.push(lang);
+      this._restrictLanguages();
     } else {
       _.remove(this.selectedLanguages, {name: lang.name});
+      this._restrictLanguages();
     }
   }
 
@@ -601,18 +604,32 @@ export class AppComponent {
       this.selectedLanguages = [];
       _.each(this.languageOptions, (lang: any) => {
         lang.selected = false;
+        lang.disabled = false;
       });
       _.each(this.languageOptions, (lang: any) => {
         if (lang.name === 'Old Théan') {
           lang.selected = true;
+          lang.disabled = true;
           this.selectedLanguages.push(lang);
         }
         if (lang.name === nation || lang.name === 'Avalon' && (nation === 'Inish' || nation === 'Highlander')) {
           lang.selected = true;
+          lang.disabled = true;
           this.selectedLanguages.push(lang); 
         }
       });
+      this._restrictLanguages();
     }
+  }
+
+  private _restrictLanguages(): void {
+    _.each(this.languageOptions, (lang: any) => {
+      if (this.selectedLanguages.length >= this.traits[3].value && !lang.selected) {
+        lang.disabled = true;
+      } else if (!lang.disabled) {
+        lang.disabled = false;
+      }
+    });
   }
 
 	getSorceryType(): string {

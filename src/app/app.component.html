@@ -347,19 +347,19 @@
 		<div class="char-box small-box inline">
 			<div>
 				<h2>Known Languages</h2>
-				<p *ngIf="traits[3].value - selectedLanguages.length > 0 && !hasLinguist">You may select {{traits[3].value - selectedLanguages.length}} more languages you know.</p>
-				<p *ngIf="traits[3].value - selectedLanguages.length === 0 && !hasLinguist">You have no more languages to select:</p>
+				<p *ngIf="traits[3].value - selectedLanguages.length > 0 && !hasLinguist">You may select {{traits[3].value - selectedLanguages.length}} more languages you can speak (and write).</p>
+				<p *ngIf="traits[3].value - selectedLanguages.length === 0 && !hasLinguist">You have no more languages to select.</p>
 				<ul *ngIf="!hasLinguist" class="rank-list inline">
 					<span *ngFor="let lang of languageOptions; let i = index" class="">
 					<li *ngIf="i < languageOptions.length / 2">
-						<md-checkbox [ngModel]="lang.selected" (ngModelChange)="onLanguageUpdate($event, lang)">{{lang.name}}</md-checkbox>
+						<md-checkbox [ngModel]="lang.selected" (ngModelChange)="onLanguageUpdate($event, lang)" disabled="{{lang.disabled}}">{{lang.name}}</md-checkbox>
 					</li>
 					</span>
 				</ul>
 				<ul *ngIf="!hasLinguist" class="rank-list inline margin-left">
 					<span *ngFor="let lang of languageOptions; let i = index" class="">
 					<li *ngIf="i >= languageOptions.length / 2">
-						<md-checkbox [ngModel]="lang.selected" (ngModelChange)="onLanguageUpdate($event, lang)">{{lang.name}}</md-checkbox>
+						<md-checkbox [ngModel]="lang.selected" (ngModelChange)="onLanguageUpdate($event, lang)" disabled="{{lang.disabled}}">{{lang.name}}</md-checkbox>
 					</li>
 					</span>
 				</ul>
