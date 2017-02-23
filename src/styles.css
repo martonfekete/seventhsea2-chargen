@@ -218,3 +218,6 @@ p.inline {
 	top:20px;
 	margin: 0 2em 0 1em; 
 }
+.italic {
+	font-style: italic;
+}

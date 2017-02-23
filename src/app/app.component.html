@@ -146,7 +146,8 @@
 	<div class="char-box inline-multi">
 		<h2>All Advantages</h2>
 
-		<p [ngClass]="{'text-grey': freeForm}" class="inline margin-bottom"><strong>Advantage points remaining: {{freeForm ? '--' : points.advantages}}</strong></p>
+		<p [ngClass]="{'text-grey': freeForm}" class="margin-bottom" *ngIf="points.free > 0">Because of duplicate advantages (<span *ngFor="let adv of duplicateAdv; let i = index; let last = last" class="italic">{{adv}}{{last ? '' : ', '}}</span>) from your backgrounds, you may choose an additional advantage worth exactly {{freeForm ? '--' : points.free}} points.</p>
+		<p [ngClass]="{'text-grey': (freeForm || points.free > 0)}" class="inline margin-bottom"><strong>Advantage points remaining: {{freeForm ? '--' : points.advantages}}</strong></p>
 		<md-slide-toggle color="primary" [(ngModel)]="showAllAdv" (ngModelChange)="filterAdvantages('reset')" class="inline">Show All Advantages</md-slide-toggle>
 		<div *ngIf="!showAllAdv">
 			<div>Show advantages that cost at most
@@ -163,14 +164,14 @@
 		<div class="margin-top">
 			<ul class="rank-list inline">
 				<div *ngFor="let adv of filteredAdvantages let i = index" class="">
-					<li *ngIf="adv.cost <= advCostRestriction && i % 2 === 0">
+					<li *ngIf="adv.cost <= advCostRestriction && i < filteredAdvantages.length / 2">
 						<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}" mdTooltip="{{adv.short}}" [mdTooltipPosition]="'right'">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
 					</li>
 				</div>
 			</ul>
 			<ul class="rank-list inline margin-left">
 				<div *ngFor="let adv of filteredAdvantages let i = index" class="">
-					<li *ngIf="adv.cost <= advCostRestriction && i % 2 === 1">
+					<li *ngIf="adv.cost <= advCostRestriction && i >= filteredAdvantages.length / 2">
 						<md-checkbox [ngModel]="adv.selected" (ngModelChange)="onAdvantageUpdate($event, adv)" disabled="{{adv.disabled}}" mdTooltip="{{adv.short}}" [mdTooltipPosition]="'right'">{{adv.name}} ({{adv.cost}} points)</md-checkbox>
 					</li>
 				</div>

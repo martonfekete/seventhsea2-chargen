@@ -35,6 +35,7 @@ export interface CharAdvantages {
 	restriction?: string,
 	received?: boolean,
 	bought?: boolean,
+	bonus?: boolean,
 	disabled?: boolean,
 	selected?: boolean,
 	short?: string

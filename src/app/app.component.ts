@@ -18,7 +18,8 @@ export interface CharPoints {
 	traits: number,
 	national: number,
 	skills: number,
-	advantages: number
+	advantages: number,
+  free: number
 }
 
 export interface CharStory {
@@ -69,6 +70,7 @@ export class AppComponent {
   showAllAdv: boolean = false;
   advQuery: string;
   filteredAdvantages: CharAdvantages[];
+  duplicateAdv: string[];
   
   charInfo: any[];
   religionOptions: string[];
@@ -117,7 +119,7 @@ export class AppComponent {
       this.religionOptions = this.dataService.religion;
       this.selectedReligion = '';
       this.otherReligion = '';
-      this.points = { traits: 2, national: 1, skills: 10, advantages: 5, backgrounds: 2 };
+      this.points = { traits: 2, national: 1, skills: 10, advantages: 5, backgrounds: 2, free: 0 };
       this.dataService.advPoints = this.points.advantages;
       this.traits = _.cloneDeep(this.dataService.traits);
       this.skills = _.cloneDeep(this.dataService.skills);
@@ -130,6 +132,7 @@ export class AppComponent {
       this.advCostRestriction = 5;
       this.advQuery = '';
       this.showAllAdv = true;
+      this.duplicateAdv = [];
       this.selectedPeople = this.peopleOptions[0];
       this._restrictSorcery(this.selectedPeople.code);
       this._selectFavoredTraits(this.selectedPeople.favor);
@@ -174,10 +177,12 @@ export class AppComponent {
       this._updateAdvantageList('init');
       this._resetCurrentStory();
       this.calculateWealth();
+      this.sorceryTimes = 0;
       this.freeForm = false;
     } else {
       this.freeForm = true;
     }
+    this.tabIndex = 0;
   }
 
   openTab(id: number): void {
@@ -304,15 +309,25 @@ export class AppComponent {
       this.decreaseSorcery();
     }
 
-    if (!this.freeForm && adv.name !== 'Sorcery' && event) {
-      this.points.advantages -= cost;
-      this._updateSelectedAdvantages(adv, 'add');
-    } else if (!this.freeForm && adv.name !== 'Sorcery') {
-      this.points.advantages += cost;
-      this._updateSelectedAdvantages(adv, 'remove');
-    }
     var _index = _.findIndex(this.advantageOptions, {name: adv.name});
-    this.advantageOptions[_index].bought = event;
+    if (!this.freeForm) {
+      if (this.points.free === 0) {
+        if (adv.name !== 'Sorcery' && event) {
+          this.points.advantages -= cost;
+          this._updateSelectedAdvantages(adv, 'add');
+        } else if (!this.freeForm && adv.name !== 'Sorcery') {
+          this.points.advantages += cost;
+          this._updateSelectedAdvantages(adv, 'remove');
+        }
+        this.advantageOptions[_index].bought = event;
+      } else if (cost === this.points.free) {
+        this.advantageOptions[_index].bonus = true;
+        this._updateSelectedAdvantages(adv, 'add');
+        this.points.free = 0;
+      } else {
+        event = false;
+      }
+    }
     if (!this.freeForm) {
       this._updateAdvantageList('restrict');
     }
@@ -438,8 +453,10 @@ export class AppComponent {
 	}
 
 	private _updateAdvantageList(reason: string = null) {
-		if (reason === 'init') {
+    this.filteredAdvantages = this.advantageOptions;
+    if (reason === 'init') {
       this.selectedAdvantages = [];
+      this.duplicateAdv = [];
 			_.each(this.advantageOptions, (adv: CharAdvantages) => {
 				adv.disabled = false;
 				adv.received = false;
@@ -449,10 +466,20 @@ export class AppComponent {
 				if (bg.quirk !== '---') {
   				_.each(bg.advantages, (adv: string) => {
   					var _index = _.findIndex(this.advantageOptions, {name: adv});
-  					this.selectedAdvantages.push(this.advantageOptions[_index]);
-  					this.advantageOptions[_index].received = true;
-            this.advantageOptions[_index].selected = true;
-            this.advantageOptions[_index].disabled = true;
+            var _selIndex = _.findIndex(this.selectedAdvantages, {name: adv});
+            if (_selIndex === -1) {
+              this.selectedAdvantages.push(this.advantageOptions[_index]);
+    					this.advantageOptions[_index].received = true;
+              this.advantageOptions[_index].selected = true;
+              this.advantageOptions[_index].disabled = true;
+            } else if (!this.freeForm && adv !== 'Sorcery') {
+              this.advantageOptions[_index].received = true;
+              this.advantageOptions[_index].selected = true;
+              this.advantageOptions[_index].disabled = true;
+              this.points.free = this.advantageOptions[_index].cost;
+              this.duplicateAdv.push(adv);
+              this._updateAdvantageList('duplicate');
+            }
   					if (adv === 'Sorcery') {
   						this.sorceryTimes = 2;
   					}
@@ -492,10 +519,30 @@ export class AppComponent {
         if (!_.isUndefined(adv.restriction) && adv.restriction !== people) {
           adv.disabled = true;
         }
+        if (adv.bonus) {
+          adv.disabled = true;
+        }
 			});
 
       this._restrictSorcery(this.selectedPeople.code);
 		}
+
+    if (reason === 'duplicate' && this.points.free > 0) {
+      this.filteredAdvantages = [];
+      _.each(this.advantageOptions, (adv: CharAdvantages) => {
+        var cost: number;
+        if ((adv.reduced === this.selectedPeople.code) || (adv.reduced === 'gla' && (this.selectedPeople.code === 'ava' || this.selectedPeople.code === 'ini' || this.selectedPeople.code === 'hig'))) {
+          cost = adv.cost === 5 ? 3 : adv.cost -1;
+        } else {
+          cost = adv.cost;
+        }
+        adv.disabled = true;
+        if (cost === this.points.free && !adv.received) {
+          adv.disabled = false;
+          this.filteredAdvantages.push(adv);
+        }
+      });
+    }
 	}
 
   private _restrictSorcery(code: string): void {
@@ -503,7 +550,11 @@ export class AppComponent {
       if (code === 'null' || code === 'cas' || code === 'ves') {
         this.advantageOptions[sorcIndex].disabled = true;
       } else {
-        this.advantageOptions[sorcIndex].disabled = false;
+        if (!this.advantageOptions[sorcIndex].received) {
+          this.advantageOptions[sorcIndex].disabled = false;
+        } else {
+          this.advantageOptions[sorcIndex].disabled = true;
+        }
       }
   }
 
