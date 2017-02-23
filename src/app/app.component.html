@@ -5,13 +5,13 @@
 		</h1>
 	</md-grid-tile>
 	<md-grid-tile>
-		<md-slide-toggle color="primary" [ngModel]="freeForm" (ngModelChange)="resetSheet($event)">Ignore Restrictions</md-slide-toggle>
+		<md-slide-toggle class="button-icon" color="primary" [ngModel]="freeForm" (ngModelChange)="resetSheet($event)">Ignore Restrictions</md-slide-toggle>
 	</md-grid-tile>
 	<md-grid-tile>
-		<button md-button (click)="resetSheet()"><md-icon>clear</md-icon>Start Over</button>
+		<button md-button (click)="resetSheet()"><md-icon class="button-icon">clear</md-icon>Start Over</button>
 	</md-grid-tile>
 	<md-grid-tile>
-		<button md-button (click)="generateSheet()"><md-icon>description</md-icon>See Hero Sheet</button>
+		<button md-button (click)="generateSheet()"><md-icon class="button-icon">description</md-icon>See Hero Sheet</button>
 	</md-grid-tile>
 </md-grid-list>
 

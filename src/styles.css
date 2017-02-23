@@ -5,7 +5,7 @@ body {
 	background-image: url(theah_map.jpg);
 	background-size: cover;
 	background-repeat: no-repeat;
-	background-position: center center;
+	background-position: center;
 	background-attachment: fixed;
 }
 #wrapper {
@@ -220,4 +220,10 @@ p.inline {
 }
 .italic {
 	font-style: italic;
+}
+.button-icon .md-slide-toggle-container {
+	margin-right: 15px;
+}
+md-icon.button-icon {
+	margin-right: 10px;
 }
