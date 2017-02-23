@@ -11,9 +11,10 @@
 		<button md-button (click)="reset()"><md-icon class="regular">clear</md-icon>Start Over</button>
 	</md-grid-tile>
 	<md-grid-tile>
-		<button md-button (click)="save()"><md-icon class="regular">save</md-icon>Save Character</button>
+		<button md-button (click)="print()"><md-icon class="regular">print</md-icon>Print / Save</button>
 	</md-grid-tile>
 </md-grid-list>
+<section id="char-sheet">
 <div class="char-box small inline">
 	<h2>Information</h2>
 	<ul class="rank-list">
@@ -153,3 +154,4 @@
 	<span class="sep" *ngIf="i === 3">You're Helpless</span>
 	-->
 </div>
+</section>
