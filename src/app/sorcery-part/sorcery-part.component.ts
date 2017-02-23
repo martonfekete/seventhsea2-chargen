@@ -195,6 +195,7 @@ export class SorceryPartComponent implements OnInit {
 			this.rank++ ;
 			this.advPoints -= 2;
 		}
+		this.rankChanged.emit(this.advPoints);
 		this.calcGiftPoints('major');
 		this.calcGiftPoints('minor');
 	}
@@ -208,8 +209,6 @@ export class SorceryPartComponent implements OnInit {
 			this.advPoints += 2;
 		}
 		this.rankChanged.emit(this.advPoints);
-		//this.sorcery.points.minor--;
-		//this.sorcery.points.minor -= 2;
 		this.calcGiftPoints('major');
 		this.calcGiftPoints('minor');
 	}
