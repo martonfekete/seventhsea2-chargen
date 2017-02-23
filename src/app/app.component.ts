@@ -150,6 +150,7 @@ export class AppComponent {
         this.arcanaOptions[0]
       ];
       this.hasLinguist = false;
+      this.languageOptions = [];
       _.each(this.dataService.languages, (lang: string) => {
         this.languageOptions.push({name: lang, selected: false, disabled: false});
       });
