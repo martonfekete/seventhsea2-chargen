@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
+import { ReplaySubject, Subscription, Observable } from 'rxjs';
 
 declare const _:any
 
@@ -70,6 +71,7 @@ export class CharGenOptions {
 	arcana: CharArcana[];
 	names: any;
 	sorceries: any;
+	selectedNation: ReplaySubject<any> = new ReplaySubject<any>(1);
 
 	shipDetails: any;
 	duelistStyles: string[];
@@ -655,6 +657,10 @@ export class CharGenOptions {
 
 	getRandomName(gender: string, nation: string): string {
 		return this.names[gender][nation][Math.round(Math.random() * this.names[gender][nation].length)];
+	}
+
+	shiftPeople(people: string): void {
+		this.selectedNation.next(people);
 	}
 }
 

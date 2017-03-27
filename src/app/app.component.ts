@@ -277,6 +277,7 @@ export class AppComponent {
 		this._updateBackgroundList(this.selectedPeople.code);
     this._updateAdvantageList('restrict');
     this._setupLanguages(false, this.selectedPeople.name);
+    this.dataService.shiftPeople(this.selectedPeople.code);
 	}
 
 	onBackgroundChange(event, index): void {

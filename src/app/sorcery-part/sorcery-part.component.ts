@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { ReplaySubject, Subscription, Observable } from 'rxjs';
 import { CharGenOptions } from '../app-usedata';
 
 declare const _:any
@@ -20,6 +21,7 @@ export class SorceryPartComponent implements OnInit {
 	selectedPatron: any;
 	advPoints: number;
 	freeForm: boolean;
+	sorcerySub: Subscription;
 
 	constructor(
 		private dataService: CharGenOptions
@@ -28,22 +30,30 @@ export class SorceryPartComponent implements OnInit {
 			major: [],
 			minor: []
 		};
+
+		this.sorcerySub = this.dataService.selectedNation.subscribe((nation: any) => {
+			var newNation = nation;
+			if (newNation !== this.nation) {
+				this.setupSorcery(newNation);
+				this._resetGifts();
+			}
+		});
 	}
 
 	ngOnInit() {
-		this.setupSorcery();
+		this.setupSorcery(this.nation);
 		this.advPoints = this.dataService.advPoints;
 		this.freeForm = this.dataService.freeForm;
 		this.recieved = _.cloneDeep(this.rank) === 2;
 	}
 
-	setupSorcery(): void {
+	setupSorcery(nation: string): void {
 		var _type = 'Knights of Avalon';
 		var _todo = 'Select a Knight and choose your Glamours.';
 		var _desc = '';
 		var _code = 'gla';
 		var _points: any;
-		switch (this.nation) {
+		switch (nation) {
 			case "eis":
 				_type = 'Hexenwerk';
 				_todo = 'Select your Major and Minor Unguents. You can select ' + this.rank*2 + ' more Minor and ' + this.rank + ' more Major Unguents.';
